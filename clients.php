@@ -1,7 +1,7 @@
 <?php 
 session_start(); 
 ob_start();
-include("logincheck.php");
+include("phputils/logincheck.php");
 ?>
 <html>
 	<head>
