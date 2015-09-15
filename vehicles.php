@@ -9,7 +9,8 @@ include("logincheck.php");
 		<!-- mobile optimise the page. Set the width to follow the screen width of the device -->
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Cyrils Classic Cars</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"><br>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
 	<style>
     	input { 
 			display:block;
@@ -30,7 +31,7 @@ include("logincheck.php");
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">Ruthless Real Estate</a>
+					<a class="navbar-brand" href="#">Cyrils Classic Cars</a>
 				</div>
 				<div class="collapse navbar-collapse" id="myNavbar">
 					<ul class="nav navbar-nav">
@@ -48,54 +49,84 @@ include("logincheck.php");
 		</nav>
 		<h1>This is the vehicles page</h1>
         
-        (car_id numeric NN PK, rego_no character(8) NN, year numeric (4) NN, colour character (30) NN,
-        odometer numeric NN, doors numeric (5) NN, seats numeric NN, engine_size numeric NN, cylinders
-        numeric NN, car_thumbnail character (50), car_model numeric FK NN, body_type character(20) NN,
-        car_transmission character(20) NN, fuel_type character(20) NN, drive_type character(20) NN)
-        
         <?php 
 		if (empty($_POST["rego_no"])) {
 		?>
-        <form method="post" enctype="multipart/form-data" action="vehicles.php">
-        	<span>Registration number</span><input type="text" name="rego_no"> </input>
-            <span>Year</span><input type="text" name="year"> </input>
-            <span>Colour</span><input type="text" name="colour"> </input>
-            <span>Odometer</span><input type="text" name="odometer"> </input>
-            <span>Doors</span><input type="text" name="doors"> </input>
-            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5" />
-            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2" />
-            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4" />
-            <span>Car image</span><input type="file" name="image_1">
-            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
-            <span>Make Name</span><select name="make_name">
-            	<option>Dummy</option>
-            </select>
-            <span>Model Name</span><select name="model_name">
-            	<option>Dummy</option>
-            </select>
-            <span>Body Type</span><select name="body_type">
-            	<option value="blathiswillbeavailable" selected>Dummy</option>
-            </select>
-            <span>Transmission</span><select name="car_transmission">
-            	<option value="Auto" selected>Auto</option>
-                <option value="Manual" selected>Manual</option>
-                <option value="Manual" selected>Sports</option>
-            </select>
-            <span>Fuel Type</span><select name="fuel_type">
-            	<option value="Petrol" selected>Petrol</option>
-            </select>
-            
-            
-        </form>
+
+		<div id="tabs">
+		  <ul>
+		    <li><a href="#fragment-1">Search Vehicles</a></li>
+		    <li><a href="#fragment-2">Add Vehicle</a></li>
+		  </ul>
+		  <div id="fragment-1">
+		  	<h2>Search for a Vehicle in the Database</h2>
+		  </div>
+
+		  <div id="fragment-2">
+		  	<h2>Add a new vehicle to the database</h2>
+			<form method="post" enctype="multipart/form-data" action="vehicles.php">
+	        	<span>Registration number</span><input type="text" name="rego_no">
+	            <span>Year</span><input type="text" name="year">
+	            <span>Colour</span><input type="text" name="colour">
+	            <span>Odometer</span><input type="text" name="odometer">
+	            <span>Doors</span><input type="number" name="door_no" min="1" max="12" value="5">
+	            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5">
+	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2">
+	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4">
+	            <span>Car image</span><input type="file" name="image_1">
+	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
+	            <span>Make Name</span><select name="make_name">
+	            	<option>Dummy</option>
+	            </select>
+	            <span>Model Name</span><select name="model_name">
+	            	<option>Dummy</option>
+	            </select>
+	            <span>Body Type</span><select name="body_type">
+	            	<option value="Hatch">Hatch</option>
+	            	<option value="Sedan">Sedan</option>
+	            	<option value="Wagon">Wagon</option>
+	            	<option value="Ute">Ute</option>
+	            	<option value="SUV/4WD">SUV/4WD</option>
+	            	<option value="Convertible">Convertible</option>
+	            	<option value="Other">Other</option>
+	            </select>
+	            <span>Transmission</span><select name="car_transmission">
+	            	<option value="Auto">Auto</option>
+	                <option value="Manual">Manual</option>
+	                <option value="Sports">Sports</option>
+	            </select>
+	            <span>Fuel Type</span><select name="fuel_type">
+	            	<option value="Petrol">Petrol</option>
+	            	<option value="Diesel">Diesel</option>
+	            	<option value="LPGas">LPGas</option>
+	            	<option value="Other">Other</option>
+	            </select>
+	            <span>Drive Type</span><select name="drive_type">
+	            	<option value="Front wheel drive">Front wheel drive</option>
+	            	<option value="Rear wheel drive">Rear wheel drive</option>
+	            	<option value="Four wheel drive">Four wheel drive</option>
+	            	<option value="Other">Other</option>
+	            </select>
+	            <input type="submit" value="Submit">
+	            <input type="Reset" value="Reset">
+	        </form>
+		  </div>
+		</div>
+	     
         <?php
 		} else {
-					
+			print_r($_POST);	
 		}
 		?>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+		<script type="text/javascript">
+    	$(function() {
+    		$( "#tabs" ).tabs();
+  		});
+    	</script>
 	</body>
 
 </html> 
