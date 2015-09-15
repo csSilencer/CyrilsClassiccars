@@ -1,7 +1,7 @@
 <?php 
 session_start(); 
 ob_start();
-include("logincheck.php");
+include("phputils/logincheck.php");
 ?>
 <html>
 	<head>
@@ -50,7 +50,7 @@ include("logincheck.php");
 		<h1>This is the vehicles page</h1>
         
         <?php 
-		if (empty($_POST["rego_no"])) {
+			if (empty($_POST)) {
 		?>
 
 		<div id="tabs">
@@ -59,12 +59,27 @@ include("logincheck.php");
 		    <li><a href="#fragment-2">Add Vehicle</a></li>
 		  </ul>
 		  <div id="fragment-1">
+		  	<?php 
+		  		if (!isset($_GET['Action'])) {
+		  	?>
 		  	<h2>Search for a Vehicle in the Database</h2>
+		  	<form method="post" action="vehicles.php?Action=Search">
+		  		<span>Registration Number</span><input type="text" name="rego_no">
+		  		<span>Make</span><input type="text" name="make_name">
+		  		<span>Model</span><input type="text" name="model_name">
+		  		<input type="submit" value="Submit">
+	            <input type="Reset" value="Reset">
+		  	</form>
+		  	<?php 
+		  		} else {
+		  			print_r($_POST);
+		  		}
+		  	?>
 		  </div>
 
 		  <div id="fragment-2">
 		  	<h2>Add a new vehicle to the database</h2>
-			<form method="post" enctype="multipart/form-data" action="vehicles.php">
+			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=Add">
 	        	<span>Registration number</span><input type="text" name="rego_no">
 	            <span>Year</span><input type="text" name="year">
 	            <span>Colour</span><input type="text" name="colour">
