@@ -81,7 +81,8 @@ include("phputils/logincheck.php");
 	            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5"></br>
 	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2"></br>
 	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-	            <span>Car image</span><input type="file" name="image" id="image" /><br/></br>
+	            <span>Car image</span><input type="file" accept="image/*"  onchange="showMyImage(this)"/>
+				<img id="thumbnail" style="width:20%; margin-top:10px;"  src="" alt="image"/>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
 	            <span>Make Name</span><select name="make_name">
@@ -153,6 +154,26 @@ include("phputils/logincheck.php");
     	$(function() {
     		$( "#tabs" ).tabs();
   		});
+
+  		function showMyImage(fileInput) {
+	        var files = fileInput.files;
+	        for (var i = 0; i < files.length; i++) {           
+	            var file = files[i];
+	            var imageType = /image.*/;     
+	            if (!file.type.match(imageType)) {
+	                continue;
+	            }           
+	            var img=document.getElementById("thumbnail");            
+	            img.file = file;    
+	            var reader = new FileReader();
+	            reader.onload = (function(aImg) { 
+	                return function(e) { 
+	                    aImg.src = e.target.result; 
+	                }; 
+	            })(img);
+	            reader.readAsDataURL(file);
+	        }    
+	    }
     	</script>
 	</body>
 
