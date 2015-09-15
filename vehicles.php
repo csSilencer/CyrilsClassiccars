@@ -81,8 +81,16 @@ include("phputils/logincheck.php");
 	            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5"></br>
 	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2"></br>
 	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-	            <span>Car image</span><input type="file" accept="image/*"  onchange="showMyImage(this)"/>
-				<img id="thumbnail" style="width:20%; margin-top:10px;"  src="" alt="image"/>
+	            <span>Car image</span>
+	            <a href="javascript:void(0);" onClick="addField();">
+	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
+	            </a>
+	            <a href="javascript:void(0);" onClick="removeField">
+	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
+	            </a>
+
+	            <input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
+				<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
 	            <span>Make Name</span><select name="make_name">
@@ -156,6 +164,7 @@ include("phputils/logincheck.php");
   		});
 
   		function showMyImage(fileInput) {
+  			console.log(fileInput);
 	        var files = fileInput.files;
 	        for (var i = 0; i < files.length; i++) {           
 	            var file = files[i];
@@ -163,7 +172,8 @@ include("phputils/logincheck.php");
 	            if (!file.type.match(imageType)) {
 	                continue;
 	            }           
-	            var img=document.getElementById("thumbnail");            
+	            countfile = fileInput.getAttribute("name").slice(-1);
+	            var img=document.getElementById("thumbnail_" + countfile);            
 	            img.file = file;    
 	            var reader = new FileReader();
 	            reader.onload = (function(aImg) { 
@@ -174,10 +184,28 @@ include("phputils/logincheck.php");
 	            reader.readAsDataURL(file);
 	        }    
 	    }
+		function addField(){
+		    var lastfile = $('form input:file').last();
+		    var countfile = ($('form input:file').length)+1;
+		    $( "<input/>", {
+		        "type": "file",
+		        "accept": "image/*",
+		        "name": "file_"+countfile,
+		        "id": "file_"+countfile,
+		        "onchange": "showMyImage(this)"
+		    }).insertAfter(lastfile);
+
+		    $("</br>").insertAfter($('form input:file').last());
+		    
+		    $( "<img/>", {
+		    	"id": "thumbnail_" +countfile,
+		    	"name": "thumbnail_"+countfile,
+		    	"style": "width:20%; margin-top:10px;",
+		    	"src": "",
+		    	"alt": "image"
+		    }).insertAfter($('form input:file').last());
+		}
     	</script>
 	</body>
 
-</html> 
-
-
-
+</html>
