@@ -48,10 +48,6 @@ include("phputils/logincheck.php");
 			</div>
 		</nav>
 		<h1>This is the vehicles page</h1>
-        
-        <?php 
-			if (empty($_POST)) {
-		?>
 
 		<div id="tabs">
 		  <ul>
@@ -60,7 +56,7 @@ include("phputils/logincheck.php");
 		  </ul>
 		  <div id="fragment-1">
 		  	<?php 
-		  		if (!isset($_GET['Action'])) {
+		  		if (!isset($_GET['Action']) || $_GET['Action'] != "Search") {
 		  	?>
 		  	<h2>Search for a Vehicle in the Database</h2>
 		  	<form method="post" action="vehicles.php?Action=Search">
@@ -72,12 +68,15 @@ include("phputils/logincheck.php");
 		  	</form>
 		  	<?php 
 		  		} else {
-		  			print_r($_POST);
+		  			echo "<p>".print_r($_POST)."</p>";
 		  		}
 		  	?>
 		  </div>
 
 		  <div id="fragment-2">
+		  	<?php 
+		  		if (!isset($_GET['Action']) || $_GET['Action'] != "Add") {
+		  	?>
 		  	<h2>Add a new vehicle to the database</h2>
 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=Add">
 	        	<span>Registration number</span><input type="text" name="rego_no">
@@ -130,7 +129,25 @@ include("phputils/logincheck.php");
 	     
         <?php
 		} else {
-			print_r($_POST);	
+			// specify a directory name for permanent storage
+			// we're going to leave the filename as it was on client machine
+			$upfile = "vehicle_images/".$_POST["rego_no"]."/".$_FILES["image_1"]["name"];
+			// this does the work
+			//moved the uploaded file from temporary location to permanent storage
+			//location
+			//if this doesn't work an error message is displayed
+			if(!move_uploaded_file($_FILES["image_1"] ["tmp_name"],$upfile))
+			{
+			 echo "ERROR: Could Not Move File into Directory";
+			}
+			//if it does work some information about the file is displayed to the user
+			else
+			{
+			 echo "Temporary File Name: " .$_FILES["image_1"] ["tmp_name"]."<br />";
+			 echo "File Name: " .$_FILES["image_1"]["name"]. "<br />";
+			 echo "File Size: " .$_FILES["image_1"]["size"]. "<br />";
+			 echo "File Type: " .$_FILES["image_1"]["type"]. "<br />"; 
+			}
 		}
 		?>
 
