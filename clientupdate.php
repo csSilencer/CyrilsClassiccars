@@ -38,30 +38,38 @@ include("phputils/logincheck.php");
 				</div>
 			</div>
 		</nav>
-		<h1>Features</h1>
-		<table>
-			<tr>
-				<h3>
-					<td>Feature ID</td>
-					<td>Feature Name</td>
-				</h3>
-			</tr>
-		</table>
+		<script language="javascript"> function confirm_delete() {
+			window.location='t7_1b.php?clientid=<?php echo $_GET["modelid"]; ?>&Action=ConfirmDelete';
+		}</script>
+
 		<?php
-		$conn = oci_connect("s24222232", "monash00", "FIT2076") or die("Couldn't logon.");
-		$query = "SELECT * FROM FEATURE ORDER BY FEATURE_ID";
+		$conn = oci_connect("s24222232","monash00","FIT2076") or die("Couldn't logon.");
+		$query = "SELECT * FROM CLIENT WHERE CLIENT_ID =".$_GET["clientid"];
 		$stmt = oci_parse($conn, $query);
+		oci_execute($stmt);
+		$clientarray = oci_fetch_array($stmt);
 		
-		while($row = oci_fetch_array($stmt)) {
-			echo '<tr>';
-			echo '<td>' . $row["FEATURE_ID"] . '</td>';
-			echo '<td>' . $row["FEATURE_NAME"] . '</td>';
-			echo '<td><a href="featureupdate.php?clientid=' . $row["FEATURE_ID"] . '&Action=Update">Update</a></td>';
-			echo '<td><a href="featureupdate.php?clientid=' . $row["FEATURE_ID"] . '&Action=Delete">Delete</a></td>';
-			echo '</tr>';
+		switch ($_GET["Action"])
+		{
+			case "Update": 
+				
+				echo '<form method="post" Action="clients.php?clientid='. $_GET["clientid"] .'&givenname='.$clientarray["CLIENT_GIVENNAME"].'&familyname='.$clientarray["CLIENT_FAMILYNAME"].'&address='.$clientarray["CLIENT_ADDRESS"].'&phone='.$clientarray["CLIENT_PHONE"].'&mobile='.$clientarray["CLIENT_MOBILE"].'&email='.$clientarray["CLIENT_EMAIL"].'&Action=ConfirmUpdate">';
+					?>
+				<h1>Update Client</h1>
+				<p>Client ID: <?php echo $clientarray["CLIENT_ID"] ?></p>
+				<p>Given Name <input type="text" name="givenname" value="<?php echo $clientarray["CLIENT_GIVENNAME"] ?>"</p>
+				<p>Surname <input type="text" name="familyname" value="<?php echo $clientarray["CLIENT_FAMILYNAME"] ?>"</p>
+				<p>Address <input type="text" name="address" value="<?php echo $clientarray["CLIENT_ADDRESS"] ?>"</p>
+				<p>Phone <input type="text" name="phone" value="<?php echo $clientarray["CLIENT_PHONE"] ?>"</p>
+				<p>Mobile <input type="text" name="mobile" value="<?php echo $clientarray["CLIENT_MOBILE"] ?>"</p>
+				<p>Email <input type="text" name="email" value="<?php echo $clientarray["CLIENT_EMAIL"] ?>"</p>
+				<input type="Submit" value="Submit">
+				<input type="Reset" value="Clear">
+				<input type="button" value="Cancel" onclick=window.location="clients.php">
+				</form>
+				<?php
 		}
-		echo '</table>';
-		
+
 		?>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
