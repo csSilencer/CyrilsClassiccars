@@ -150,7 +150,7 @@ include("phputils/conn.php")
                 	case "DeleteConfirm":
                 		$query = "DELETE FROM MAKE WHERE MAKE_ID=".$_POST["makeid"];
 						$stmt = oci_parse($conn,$query);
-						if (@oci_execute($stmt)) {
+						if (oci_execute($stmt)) {
 							echo '<h2>Record Deleted</h2>';
 							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
 						}
