@@ -2,6 +2,7 @@
 session_start(); 
 ob_start();
 include("phputils/logincheck.php");
+include("phputils/conn.php")
 ?>
 <html>
 	<head>
@@ -14,10 +15,15 @@ include("phputils/logincheck.php");
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
 		<style type="text/css">
-			.buttons {
+			.tablebuttons {
 				float:right;
 				margin: 15px 10px 0px 0px;
 				opacity: 0.5;
+			}
+			.submitButtons {
+				padding-top: 10px;
+				display:inline-block;
+				margin: 0px 0px 0px 10px;
 			}
 			.edit {
 				margin: 10px 10px 10px 0;
@@ -31,13 +37,16 @@ include("phputils/logincheck.php");
 			.clickable {
 				opacity: 1;
 			}
-			.btnsubmit {
-				margin: 0px 10px 0px 0px;
+			.error {
+				color: red;
+				font-weight: bold;
 			}
-			.newmakesubmit {
-				padding-top: 10px;
-				display:inline-block;
-				margin: 0px 0px 0px 10px;
+			h3 {
+				display: inline-block;
+			}
+			.code {
+				border-top: 1px solid black;
+				width:100%;
 			}
 		</style>
 	</head>
@@ -69,7 +78,6 @@ include("phputils/logincheck.php");
 			</div>
 		</nav>
 		<?php 
-			$conn = oci_connect("s25115782","monash00","fit2076");
 			// echo "<p>". $conn ."</p>";
 			$query= "SELECT * FROM MAKE";
 			$stmt = oci_parse($conn, $query);
@@ -85,6 +93,95 @@ include("phputils/logincheck.php");
 		    <li><a href="#tabs-2">New Make</a></li>
 		  </ul>
 			<div id="tabs-1">
+				<?php
+				if(isset($_GET["Action"])) {
+					switch($_GET["Action"]){
+						case "Edit":
+				?>
+
+				<h2>The record you are modifying:</h2>
+                <form method="post" action="makes.php?Action=EditConfirm">
+                	<h3>Make:</h3><span><?php echo $_GET["Make_Name"]?></span></br>
+                	<h3>ID#:</h3><span><?php echo $_GET["Make_ID"]?></span></br>
+                	<h3>New Make:</h3> <?php echo "<input type='text' name='makename' value='" .$_GET["Make_Name"]. "'>" ?>
+                	<?php echo "<input style='display:none' type='text' name='makeid' value='" .$_GET["Make_ID"]. "'>" ?>
+                	<div class="submitbuttons">
+                		<input class="btn btn-lg btn-primary" type="submit" value="Submit">
+                		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='makes.php'">
+                	</div>
+                	
+                </form>
+                <?php 
+                	break;
+                ?>
+                <?php 
+                	case "EditConfirm":
+                		$query = "UPDATE MAKE set MAKE_NAME='".$_POST["makename"]."' WHERE MAKE_ID='".$_POST["makeid"]."'";
+		                $stmt = oci_parse($conn,$query);
+		                if (@oci_execute($stmt)) {
+		                    echo "<h2>The following make record has been successfully updated</h2></br>";
+		                    echo "<h3>Make name:</h3>".$_POST["makename"];
+		                    echo "</br>";
+		                    echo "<h3>Make ID:</h3>".$_POST["makeid"];
+		                } else {
+		                    echo "<h2 class='error'>Error updating make record</h2>";
+		                }
+		                echo "<input class='btn btn-lg btn-primary submitButtons' type='button' value='Return to List' OnClick='window.location=\"makes.php\"'>";
+		                break;
+                ?>
+                <?php 
+                	case "Delete":
+                ?>
+                	<h2>The record you are deleting:</h2>
+                	<form method="post" action="makes.php?Action=DeleteConfirm">
+	                	<h3>Make:</h3><span><?php echo $_GET["Make_Name"]?></span><br/>
+	                	<h3>ID#:</h3><span><?php echo $_GET["Make_ID"]?></span>
+	                	<?php 
+	                		echo '<input style="display:none;" type="text" value="'.$_GET["Make_ID"].'">'
+	                	?>
+	                	<div class="submitbuttons">
+	                		<input class="btn btn-lg btn-primary" type="submit" value="Delete">
+	                		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='makes.php'">
+	                	</div>
+	                </form>
+                <?php 
+                	break;
+                ?>
+                <?php
+                	case "DeleteConfirm":
+                		$query = "DELETE FROM MAKE WHERE MAKE_ID=".$_POST["modelid"];
+						$stmt = oci_parse($conn,$query);
+						if (@oci_execute($stmt)) {
+							echo '<h2>Record Deleted</h2>';
+							echo '<input type="button" value="Return to list" onClick=window.location="makes.php">';
+						}
+						else {
+							echo '<h2 class="error">Deletion Failed</h2>';	
+						}
+						break;
+                ?>
+                <?php 
+                	case "AddSuccess":
+                		echo '<h2>Record Added successfully</h2></br>';
+                		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+                		break;
+                	case "AddFail":
+                		echo '<h2 class="error">Unable to add record</h2></br>';
+                		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+                ?>
+				<?php 
+					default:
+						//clear action or just redirect back
+						header("location: makes.php");
+				?>
+			  <?php
+			  	break;
+			  	}
+			  }
+			  ?>
+			  <?php if(!isset($_GET["Action"])) 
+			  { 
+			  ?>
 			  	<h2>Edit/Delete a Make</h2>
 				<table id="makes" class="display" cellspacing="0" width="100%">
 			        <thead>
@@ -103,20 +200,25 @@ include("phputils/logincheck.php");
 
 			        <tbody>
 			        	<?php 
-			        		while ($row = oci_fetch_array ($stmt)) {
+			        		while ($row = oci_fetch_array ($stmt)) 
+			        		{
 			        	?>
 			        	<tr>
 			        		<td><?php echo $row[0]; ?></td>
 			        		<td><?php echo $row[1]; ?></td>
 			        	</tr>
-			        	<?php } ?>
+			        	<?php
+			        		} ?>
 			        </tbody>
 				</table>
-				<div class="buttons">
+				<div class="tablebuttons">
 					<button class="edit btn btn-lg btn-primary" onClick="editMake();">Edit</button>
 					<button class="delete btn btn-lg btn-danger" onClick="deleteMake();">Delete</button>
 				</div>
-			  </div>
+		  	</div>
+		  	<?php 
+		  	}
+		  	?>
 			<div id="tabs-2">
 				<h2>Insert a new make</h2>
 		        <?php 
@@ -124,20 +226,19 @@ include("phputils/logincheck.php");
 		        	{
 		        ?>
 	        	<form method="post" action="makes.php?Action=Add">
-	            <span>Make name</span><input type="text" name="makename">
-	            <div class="newmakesubmit">
-					<input class="btnsubmit btn btn-lg btn-primary" type="Submit" Value="Submit">
-	            	<input class="btnclear btn btn-lg btn-info"type="Reset" Value="Clear">
+	            <h3>Make Name: </h3><input type="text" name="makename">
+	            <div class="submitButtons">
+					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+	            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
 	            </div>
 	            
 		        <?php 
 		    		} else {
-		                $conn = oci_connect("s25115782","monash00","fit2076") or die("Couldn't logon.");
 		                $mn = $_POST["makename"];
 		                $query="INSERT INTO MAKE (MAKE_ID, MAKE_NAME) VALUES (make_seq.nextval,:mname)";
 		                $stmt = oci_parse($conn, $query);
 		                oci_bind_by_name($stmt, ":mname", $mn);
-		                if(oci_execute($stmt)) {
+		                if(@oci_execute($stmt)) {
 		                	header("location: makes.php?Action=AddSuccess");
 		                } else {
 		                	header("location: makes.php?Action=AddFail");
@@ -145,6 +246,11 @@ include("phputils/logincheck.php");
 		            }
 		        ?>
 		    </div>
+		</div>
+		<div class="code">
+			<a href="phputils/displaysource.php?filename=makes.php">
+				<img src="assets/make.png">
+			</a>
 		</div>
 
 	  	
@@ -160,24 +266,25 @@ include("phputils/logincheck.php");
 		$(function() {
     		$( "#tabs" ).tabs();
   		});
-
 		$(function() {
 		    $('tr').on('click', function() {
 		    	$('tr').removeClass('selected');
 		        $(this).addClass('selected');
-		        $('.buttons').addClass('clickable');
+		        $('.tableButtons').addClass('clickable');
 		    });
 		});
 		function editMake() {
-			var row = $('tr.selected td:first-child');
-			if (row) {
-				window.location.href = "makes.php?Action=Edit&Make_ID=" + row[0].innerHTML;
+			var rowcol1 = $('tr.selected td:first-child');
+			var rowcol2 = $('tr.selected td:last-child');
+			if (rowcol1) {
+				window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
 			}
 		};
 		function deleteMake() {
-			var row = $('tr.selected td:first-child');
-			if (row) {
-				window.location.href = "makes.php?Action=Delete&Make_ID=" + row[0].innerHTML;
+			var rowcol1 = $('tr.selected td:first-child');
+			var rowcol2 = $('tr.selected td:last-child');
+			if (rowcol1) {
+				window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
 			}
 		};
 		</script>

@@ -2,6 +2,7 @@
 session_start(); 
 ob_start();
 include("phputils/logincheck.php");
+include("phputils/conn.php");
 ?>
 <html>
 	<head>
@@ -10,6 +11,13 @@ include("phputils/logincheck.php");
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
+		<style type="text/css">
+			.code {
+				border-top: 1px solid black;
+				width:100%;
+			}
+		</style>
 	</head>
 
 	<body>
@@ -38,11 +46,53 @@ include("phputils/logincheck.php");
 				</div>
 			</div>
 		</nav>
-		<h1>This is the models page</h1>
+		<?php 
+			// echo "<p>". $conn ."</p>";
+			$query= "SELECT * FROM CMODEL";
+			$stmt = oci_parse($conn, $query);
+			if(!oci_execute($stmt)) {
+				echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
+				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+			}
+		?>
+		
+		<div id="tabs">
+		  <ul>
+		    <li><a href="#tabs-1">Existing Models</a></li>
+		    <li><a href="#tabs-2">Add new Model</a></li>
+		  </ul>
+		  <div id="tabs-1">
+		  	<p>bla</p>
+		  </div>
+		  <div id="tabs-2">
+		  	<p>bla</p>
+		  </div>
+		</div>
+
+		<div class="code">
+			<a href="phputils/displaysource.php?filename=models.php">
+				<img src="assets/model.png">
+			</a>
+		</div>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+		<script type="text/javascript">
+		// $(document).ready(function(){
+		//     $('#makes').DataTable();
+		// });
+		$(function() {
+    		$( "#tabs" ).tabs();
+  		});
+		// $(function() {
+		//     $('tr').on('click', function() {
+		//     	$('tr').removeClass('selected');
+		//         $(this).addClass('selected');
+		//         $('.tableButtons').addClass('clickable');
+		//     });
+		// });
+		</script>
 	</body>
 
 </html> 
