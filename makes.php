@@ -12,7 +12,6 @@ include("phputils/conn.php")
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
-		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
 		<style type="text/css">
 			.tablebuttons {
@@ -159,8 +158,6 @@ include("phputils/conn.php")
 							echo '<h2 class="error">Deletion Failed</h2>';	
 						}
 						break;
-                ?>
-                <?php 
                 	case "AddSuccess":
                 		echo '<h2>Record Added successfully</h2></br>';
                 		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
@@ -168,8 +165,7 @@ include("phputils/conn.php")
                 	case "AddFail":
                 		echo '<h2 class="error">Unable to add record</h2></br>';
                 		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
-                ?>
-				<?php 
+                		break;
 					default:
 						//clear action or just redirect back
 						header("location: makes.php");
