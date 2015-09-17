@@ -136,7 +136,7 @@ include("phputils/conn.php")
 	                	<h3>Make:</h3><span><?php echo $_GET["Make_Name"]?></span><br/>
 	                	<h3>ID#:</h3><span><?php echo $_GET["Make_ID"]?></span>
 	                	<?php 
-	                		echo '<input style="display:none;" type="text" value="'.$_GET["Make_ID"].'">'
+	                		echo '<input style="display:none;" type="text" name="makeid" value="'.$_GET["Make_ID"].'">'
 	                	?>
 	                	<div class="submitbuttons">
 	                		<input class="btn btn-lg btn-primary" type="submit" value="Delete">
@@ -148,14 +148,15 @@ include("phputils/conn.php")
                 ?>
                 <?php
                 	case "DeleteConfirm":
-                		$query = "DELETE FROM MAKE WHERE MAKE_ID=".$_POST["modelid"];
+                		$query = "DELETE FROM MAKE WHERE MAKE_ID=".$_POST["makeid"];
 						$stmt = oci_parse($conn,$query);
 						if (@oci_execute($stmt)) {
 							echo '<h2>Record Deleted</h2>';
-							echo '<input type="button" value="Return to list" onClick=window.location="makes.php">';
+							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
 						}
 						else {
 							echo '<h2 class="error">Deletion Failed</h2>';	
+							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
 						}
 						break;
                 	case "AddSuccess":
@@ -232,10 +233,10 @@ include("phputils/conn.php")
 		        <?php 
 		    		} else {
 		                $mn = $_POST["makename"];
-		                $query="INSERT INTO MAKE (MAKE_ID, MAKE_NAME) VALUES (make_seq.nextval,:mname)";
+		                $query="INSERT INTO MAKE (MAKE_ID, MAKE_NAME) VALUES (SEQ_MAKE_ID.nextval,:mname)";
 		                $stmt = oci_parse($conn, $query);
 		                oci_bind_by_name($stmt, ":mname", $mn);
-		                if(@oci_execute($stmt)) {
+		                if(oci_execute($stmt)) {
 		                	header("location: makes.php?Action=AddSuccess");
 		                } else {
 		                	header("location: makes.php?Action=AddFail");
