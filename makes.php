@@ -208,7 +208,8 @@ include("phputils/conn.php")
 			        		<td><?php echo $row[1]; ?></td>
 			        	</tr>
 			        	<?php
-			        		} ?>
+			        	} 
+			        	?>
 			        </tbody>
 				</table>
 				<div class="tablebuttons">

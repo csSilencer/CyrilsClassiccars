@@ -11,6 +11,7 @@ include("phputils/conn.php");
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
 		<style type="text/css">
 			.code {
@@ -48,21 +49,48 @@ include("phputils/conn.php");
 		</nav>
 		<?php 
 			// echo "<p>". $conn ."</p>";
-			$query= "SELECT * FROM CMODEL";
+			// $query= "SELECT * FROM CMODEL";
+			$query="SELECT c.MODEL_ID, c.MODEL_NAME, m.MAKE_ID, m.MAKE_NAME  FROM CMODEL c, MAKE m
+					WHERE c.MAKE_ID = m.MAKE_ID";
 			$stmt = oci_parse($conn, $query);
 			if(!oci_execute($stmt)) {
 				echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
 				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
 			}
 		?>
-		
+
 		<div id="tabs">
 		  <ul>
 		    <li><a href="#tabs-1">Existing Models</a></li>
 		    <li><a href="#tabs-2">Add new Model</a></li>
 		  </ul>
 		  <div id="tabs-1">
-		  	<p>bla</p>
+		  	<table id="models" class="display" cellspacing="0" width="100%">
+		  		<thead>
+		  			<th>ModelID</th>
+		  			<th>Make</th>
+		  			<th>Model</th>
+		  		</thead>
+		  		<tfoot>
+		  			<th>ModelID</th>
+		  			<th>Make</th>
+		  			<th>Model</th>
+		  		</tfoot>
+		  		<tbody>
+		  			<?php 
+		  				while ($row = oci_fetch_array($stmt))
+		  				{
+		  			?>
+		  			<tr>
+		  				<td><?php echo $row["MODEL_ID"]?></td>
+		  				<td><?php echo $row["MAKE_NAME"]?></td>
+		  				<td><?php echo $row["MODEL_NAME"]?></td>
+		  			</tr>
+		  			<?php 
+		  			}
+		  			?>
+		  		</tbody>
+		  	</table>
 		  </div>
 		  <div id="tabs-2">
 		  	<p>bla</p>
@@ -77,11 +105,12 @@ include("phputils/conn.php");
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
 		<script type="text/javascript">
-		// $(document).ready(function(){
-		//     $('#makes').DataTable();
-		// });
+		$(document).ready(function(){
+		    $('#models').DataTable();
+		});
 		$(function() {
     		$( "#tabs" ).tabs();
   		});
