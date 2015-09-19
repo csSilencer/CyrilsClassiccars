@@ -117,7 +117,7 @@ include("phputils/conn.php")
                 	case "EditConfirm":
                 		$query = "UPDATE MAKE set MAKE_NAME='".$_POST["makename"]."' WHERE MAKE_ID='".$_POST["makeid"]."'";
 		                $stmt = oci_parse($conn,$query);
-		                if (@oci_execute($stmt)) {
+		                if (oci_execute($stmt)) {
 		                    echo "<h2>The following make record has been successfully updated</h2></br>";
 		                    echo "<h3>Make name:</h3>".$_POST["makename"];
 		                    echo "</br>";
@@ -275,6 +275,7 @@ include("phputils/conn.php")
 			var rowcol1 = $('tr.selected td:first-child');
 			var rowcol2 = $('tr.selected td:last-child');
 			if (rowcol1) {
+				//pass the makeid and name as its more efficient, less coupled
 				window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
 			}
 		};
@@ -282,6 +283,7 @@ include("phputils/conn.php")
 			var rowcol1 = $('tr.selected td:first-child');
 			var rowcol2 = $('tr.selected td:last-child');
 			if (rowcol1) {
+				//pass the makeid and name as its more efficient, less coupled
 				window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
 			}
 		};
