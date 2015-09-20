@@ -258,35 +258,34 @@ include("phputils/conn.php")
 		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
 		<script type="text/javascript">
-		$(document).ready(function(){
-		    $('#makes').DataTable();
-		});
-		$(function() {
-    		$( "#tabs" ).tabs();
-  		});
-		$(function() {
-		    $('tr').on('click', function() {
-		    	$('tr').removeClass('selected');
+			$("input").prop('required',true);
+			$(document).ready(function(){
+			    $('#makes').DataTable();
+			});
+			$(function() {
+	    		$( "#tabs" ).tabs();
+	  		});
+	  		$(document).on('click', 'tr', function () {
+	  			$('tr').removeClass('selected');
 		        $(this).addClass('selected');
 		        $('.tableButtons').addClass('clickable');
-		    });
-		});
-		function editMake() {
-			var rowcol1 = $('tr.selected td:first-child');
-			var rowcol2 = $('tr.selected td:last-child');
-			if (rowcol1) {
-				//pass the makeid and name as its more efficient, less coupled
-				window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			}
-		};
-		function deleteMake() {
-			var rowcol1 = $('tr.selected td:first-child');
-			var rowcol2 = $('tr.selected td:last-child');
-			if (rowcol1) {
-				//pass the makeid and name as its more efficient, less coupled
-				window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			}
-		};
+	  		});
+			function editMake() {
+				var rowcol1 = $('tr.selected td:first-child');
+				var rowcol2 = $('tr.selected td:last-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+				}
+			};
+			function deleteMake() {
+				var rowcol1 = $('tr.selected td:first-child');
+				var rowcol2 = $('tr.selected td:last-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+				}
+			};
 		</script>
 	</body>
 

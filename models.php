@@ -3,6 +3,21 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
+
+function fSelect ($value1, $value2) {
+	$strSelect = "";
+	if($value1 == $value2) {
+		$strSelect = " SELECTED";
+	}
+	return $strSelect;
+}
+
+function getMakeByName ($makename, $conn) {
+	$query = "SELECT * FROM MAKE WHERE MAKE_NAME='".$makename."'";
+	$stmt = oci_parse($conn,$query);
+	oci_execute($stmt);
+	return oci_fetch_array($stmt);
+}
 ?>
 <html>
 	<head>
@@ -72,21 +87,6 @@ include("phputils/conn.php");
 			</div>
 		</nav>
 		<?php 
-        	function fSelect ($value1, $value2) {
-				$strSelect = "";
-				if($value1 == $value2) {
-					$strSelect = " SELECTED";
-				}
-				return $strSelect;
-			}
-
-			function getMakeByName ($makename) {
-        		$query = "SELECT * FROM MAKE WHERE MAKE_NAME='".$makename."'";
-        		$stmt = oci_parse($conn,$query);
-				oci_execute($stmt);
-				return oci_fetch_array($stmt);
-			}
-
 			$query="SELECT c.MODEL_ID, c.MODEL_NAME, m.MAKE_ID, m.MAKE_NAME  FROM CMODEL c, MAKE m
 					WHERE c.MAKE_ID = m.MAKE_ID";
 			$stmt = oci_parse($conn, $query);
@@ -112,13 +112,13 @@ include("phputils/conn.php");
 		  	<h2>The record you are modifying:</h2>
             <form method="post" action="models.php?Action=EditConfirm">
             	<?php
-            	$query = "SELECT * FROM CMODEL WHERE MODEL_ID =".$_GET["Model_ID"];
-				$stmt = oci_parse($conn, $query);
-				oci_execute($stmt);
-				$model = oci_fetch_array($stmt);
-				$query = "SELECT * FROM MAKE";
-				$stmt = oci_parse($conn, $query);
-				oci_execute($stmt);
+	            	$query = "SELECT * FROM CMODEL WHERE MODEL_ID =".$_GET["Model_ID"];
+					$stmt = oci_parse($conn, $query);
+					oci_execute($stmt);
+					$model = oci_fetch_array($stmt);
+					$query = "SELECT * FROM MAKE";
+					$stmt = oci_parse($conn, $query);
+					oci_execute($stmt);
 				?>
             	<h3>Make:</h3><span><?php echo $_GET["Make_Name"]?></span></br>
             	<h3>ID#:</h3><span><?php echo $_GET["Model_ID"]?></span></br>
@@ -145,7 +145,7 @@ include("phputils/conn.php");
             ?>
             <?php 
             	case "EditConfirm":
-            		$make = getMakeByName($_POST["makename"]);
+            		$make = getMakeByName($_POST["makename"], $conn);
             		$query = "UPDATE CMODEL set MODEL_NAME='".$_POST["modelname"]."', MAKE_ID='".$make["MAKE_ID"]."' WHERE MODEL_ID='".$_POST["modelid"]."'";
 	                $stmt = oci_parse($conn,$query);
 	                if (oci_execute($stmt)) {
@@ -165,17 +165,16 @@ include("phputils/conn.php");
             	case "Delete":
             ?>
             <h2>The record you are deleting:</h2>
-        	<form method="post" action="makes.php?Action=DeleteConfirm">
+        	<form method="post" action="models.php?Action=DeleteConfirm">
         		<?php 
-        			$make = getMakeByName($_GET["Make_Name"]);
         			$query = "SELECT * FROM CMODEL WHERE MODEL_ID =".$_GET["Model_ID"];
             		$stmt = oci_parse($conn,$query);
 					oci_execute($stmt);
             		$model = oci_fetch_array($stmt);
         		?>
-        		<h3>Make:</h3><span><?php echo $make["MAKE_NAME"]?></span></br>
-            	<h3>Model Name:</h3><span><?php echo $_model["MODEL_NAME"]?></span><br/>
-            	<h3>ID#:</h3><span><?php echo $_GET["Make_ID"]?></span>
+        		<h3>Make:</h3><span><?php echo $_GET["Make_Name"];?></span></br>
+            	<h3>Model Name:</h3><span><?php echo $model["MODEL_NAME"]?></span><br/>
+            	<h3>ID#:</h3><span><?php echo $_GET["Model_ID"];?></span>
             	<?php 
             		echo '<input style="display:none;" type="text" name="modelid" value="'.$_GET["Model_ID"].'">'
             	?>
@@ -191,25 +190,25 @@ include("phputils/conn.php");
 					$stmt = oci_parse($conn,$query);
 					if (oci_execute($stmt)) {
 						echo '<h2>Record Deleted</h2>';
-						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="models.php">';
 					}
 					else {
 						echo '<h2 class="error">Deletion Failed</h2>';	
-						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="models.php">';
 					}
 					break;
             	case "AddSuccess":
             		echo '<h2>Record Added successfully</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="models.php">';
             		break;
             	case "AddFail":
             		echo '<h2 class="error">Unable to add record</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="models.php">';
             		break;
             ?>
             <?php 
             	default:
-            		header("location: makes.php");
+            		header("location: models.php");
             		break;
             	}
             }
@@ -258,29 +257,30 @@ include("phputils/conn.php");
 	        	{
 	        ?>
         	<form method="post" action="models.php?Action=Add">
-        	<h3>Makes:</h3>
-        	<?php 
-        		$query = "SELECT * FROM MAKE";
-        		$stmt = oci_parse($conn,$query);
-				oci_execute($stmt);
-        		echo "<select name='makename'>";
-        		while($makes = oci_fetch_array($stmt)) {
-					echo '<option value="'.$makes["MAKE_NAME"].'">';
-					echo $makes["MAKE_NAME"];
-					echo '</option>';
-				}
-				echo "</select>";
-        	?>
-            <h3>ModelName: </h3><input type="text" name="modelname">
-            <div class="submitButtons">
-				<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
-            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
-            </div>
+	        	<h3>Makes:</h3>
+	        	<?php 
+	        		$query = "SELECT * FROM MAKE";
+	        		$stmt = oci_parse($conn,$query);
+					oci_execute($stmt);
+	        		echo "<select name='makename'>";
+	        		while($makes = oci_fetch_array($stmt)) {
+						echo '<option value="'.$makes["MAKE_NAME"].'">';
+						echo $makes["MAKE_NAME"];
+						echo '</option>';
+					}
+					echo "</select>";
+	        	?>
+	            <h3>ModelName: </h3><input type="text" name="modelname">
+	            <div class="submitButtons">
+					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+	            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+	            </div>
+        	</form>
             
 	        <?php 
 	    		} else {
 	                $mn = $_POST["modelname"];
-	                $makeid = getMakeByName($_POST["makename"]);
+	                $makeid = getMakeByName($_POST["makename"], $conn)["MAKE_ID"];
 	                $query="INSERT INTO CMODEL (MODEL_ID, MAKE_ID, MODEL_NAME) VALUES (SEQ_MODEL_ID.nextval, :makeid, :mname)";
 	                $stmt = oci_parse($conn, $query);
 	                oci_bind_by_name($stmt, ":mname", $mn);
@@ -306,35 +306,34 @@ include("phputils/conn.php");
 		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
 		<script type="text/javascript">
-		$(document).ready(function(){
-		    $('#models').DataTable();
-		});
-		$(function() {
-    		$( "#tabs" ).tabs();
-  		});
-		$(function() {
-		    $('tr').on('click', function() {
-		    	$('tr').removeClass('selected');
+			$("input").prop('required',true);
+			$(document).ready(function(){
+			    $('#models').DataTable();
+			});
+			$(function() {
+	    		$( "#tabs" ).tabs();
+	  		});
+	  		$(document).on('click', 'tr', function () {
+	  			$('tr').removeClass('selected');
 		        $(this).addClass('selected');
 		        $('.tableButtons').addClass('clickable');
-		    });
-		});
-		function editModel() {
-			var rowcol1 = $('tr.selected td:first-child');
-			var rowcol2 = $('tr.selected td:nth-child(1)');
-			if (rowcol1) {
-				//pass model and make data to make the query later simpler
-				window.location.href = "models.php?Action=Edit&Model_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			}
-		};
-		function deleteModel() {
-			var rowcol1 = $('tr.selected td:first-child');
-			var rowcol2 = $('tr.selected td:last-child');
-			if (rowcol1) {
-				//pass model and make data to make the query later simpler
-				window.location.href = "models.php?Action=Delete&Model_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			}
-		};
+	  		});
+			function editModel() {
+				var rowcol1 = $('tr.selected td:first-child');
+				var rowcol2 = $('tr.selected td:nth-child(2)');
+				if (rowcol1) {
+					//pass model and make data to make the query later simpler
+					window.location.href = "models.php?Action=Edit&Model_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+				}
+			};
+			function deleteModel() {
+				var rowcol1 = $('tr.selected td:first-child');
+				var rowcol2 = $('tr.selected td:nth-child(2)');
+				if (rowcol1) {
+					//pass model and make data to make the query later simpler
+					window.location.href = "models.php?Action=Delete&Model_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+				}
+			};
 		</script>
 	</body>
 
