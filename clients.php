@@ -98,12 +98,75 @@ include("phputils/conn.php");
 				if(isset($_GET["Action"])) {
 					switch($_GET["Action"]){
 						case "Edit":
-							break;
+		  	?>
+		  	<h2>The record you are modifying:</h2>
+        	<form method="post" action="clients.php?Action=EditConfirm">
+        		<?php 
+        		$query= "SELECT * FROM CLIENT WHERE CLIENT_ID=".$_GET["Client_ID"];
+				$stmt = oci_parse($conn, $query);
+				oci_execute($stmt);
+				$client = oci_fetch_array($stmt);
+
+        		echo '<h3>Given Name:</h3><input type="text" name="givenname" value="'.$client["CLIENT_GIVENNAME"].'"><br>';
+				echo '<h3>Surname:</h3><input type="text" name="familyname" value="'.$client["CLIENT_FAMILYNAME"].'"><br>';
+				echo '<h3>Address:</h3><input type="text" name="address" value="'.$client["CLIENT_ADDRESS"].'"><br>';
+				echo '<h3>Phone:</h3><input type="text" name="phone" value="'.$client["CLIENT_PHONE"].'"><br>';
+				echo '<h3>Mobile:</h3><input type="text" name="mobile" value="'.$client["CLIENT_MOBILE"].'"><br>';
+				echo '<h3>Email:</h3><input type="text" name="email" value="'.$client["CLIENT_EMAIL"].'"><br>';
+        		?>
+	            <div class="submitButtons">
+					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+	            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+	            </div>
+            </form>
+		  	<?php 
+		  		break;
 		  	?>
 		  	<?php 
-
-
+				case "EditConfirm":
+					print_r($_POST);
+            		// $query = "UPDATE CLIENT SET CLIENT_GIVENNAME = CLIENT_FAMILYNAME CLIENT_ADDRESS CLIENT_PHONE CLIENT_MOBILE CLIENT_EMAIL";
+	             //    $stmt = oci_parse($conn,$query);
+	             //    if (oci_execute($stmt)) {
+	             //        echo "<h2>The following make record has been successfully updated</h2></br>";
+	             //        echo "<h3>Make name:</h3>".$_POST["makename"];
+	             //        echo "</br>";
+	             //        echo "<h3>Make ID:</h3>".$_POST["makeid"];
+	             //    } else {
+	             //        echo "<h2 class='error'>Error updating make record</h2>";
+	             //    }
+	                echo "<input class='btn btn-lg btn-primary submitButtons' type='button' value='Return to List' OnClick='window.location=\"clients.php\"'>";
+	                break;
 		  	?>
+		  	<?php 
+            	case "Delete":
+            ?>
+	            	<h2>The record you are deleting:</h2>
+	            	<form method="post" action="clients.php?Action=DeleteConfirm">
+
+	                	<?php
+	                		$query = "SELECT * FROM CLIENT WHERE CLIENT_ID=".$_GET["Client_ID"];
+	                		$stmt = oci_parse($conn,$query);
+	                		oci_execute($stmt);
+	                		$row = oci_fetch_array($stmt);
+	                		echo '<input style="display:none;" type="text" name="clientid" value="'.$_GET["Client_ID"].'">'
+	                	?>
+	                	<h3>Client ID:</h3><?php echo $row[0];?><br>
+						<h3>Given Name:</h3><?php echo $row[1];?><br>
+						<h3>Surname:</h3><?php echo $row[2];?><br>
+						<h3>Address:</h3><?php echo $row[3];?><br>
+						<h3>Phone:</h3><?php echo $row[4];?><br>
+						<h3>Mobile:</h3><?php echo $row[5];?><br>
+						<h3>Email:</h3><?php echo $row[6];?>
+
+	                	<div class="submitbuttons">
+	                		<input class="btn btn-lg btn-primary" type="submit" value="Delete">
+	                		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='clients.php'">
+	                	</div>
+	                </form>
+            <?php 
+            	break;
+            ?>
 		  	<?php 
 		  		case "DeleteConfirm":
             		$query = "DELETE FROM CLIENT WHERE CLIENT_ID=".$_POST["clientid"];
@@ -193,12 +256,12 @@ include("phputils/conn.php");
 		        	{
 		        ?>
 	        	<form method="post" action="clients.php?Action=Add">
-					<p>Given Name <input type="text" name="givenname"></p>
-					<p>Surname <input type="text" name="familyname"></p>
-					<p>Address <input type="text" name="address"></p>
-					<p>Phone <input type="text" name="phone"></p>
-					<p>Mobile <input type="text" name="mobile"></p>
-					<p>Email <input type="text" name="email"></p>
+					<h3>Given Name:</h3><input type="text" name="givenname"><br>
+					<h3>Surname:</h3><input type="text" name="familyname"><br>
+					<h3>Address:</h3><input type="text" name="address"><br>
+					<h3>Phone:</h3><input type="text" name="phone"><br>
+					<h3>Mobile:</h3><input type="text" name="mobile"><br>
+					<h3>Email:</h3><input type="text" name="email">
 		            <div class="submitButtons">
 						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 		            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
@@ -287,22 +350,20 @@ include("phputils/conn.php");
 		        $(this).addClass('selected');
 		        $('.tableButtons').addClass('clickable');
 	  		});
-			// function editMake() {
-			// 	var rowcol1 = $('tr.selected td:first-child');
-			// 	var rowcol2 = $('tr.selected td:last-child');
-			// 	if (rowcol1) {
-			// 		//pass the makeid and name as its more efficient, less coupled
-			// 		window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			// 	}
-			// };
-			// function deleteMake() {
-			// 	var rowcol1 = $('tr.selected td:first-child');
-			// 	var rowcol2 = $('tr.selected td:last-child');
-			// 	if (rowcol1) {
-			// 		//pass the makeid and name as its more efficient, less coupled
-			// 		window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			// 	}
-			// };
+			function editClient() {
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "clients.php?Action=Edit&Client_ID=" + rowcol1[0].innerHTML;
+				}
+			};
+			function deleteClient() {
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "clients.php?Action=Delete&Client_ID=" + rowcol1[0].innerHTML;
+				}
+			};
 		</script>
 
 	</body>
