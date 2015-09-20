@@ -2,6 +2,7 @@
 session_start(); 
 ob_start();
 include("phputils/logincheck.php");
+include("phputils/conn.php");
 ?>
 <html>
 	<head>
@@ -10,6 +11,43 @@ include("phputils/logincheck.php");
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
+		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
+		<style type="text/css">
+			.tablebuttons {
+				float:right;
+				margin: 15px 10px 0px 0px;
+				opacity: 0.5;
+			}
+			.submitButtons {
+				padding-top: 10px;
+				display:inline-block;
+				margin: 0px 0px 0px 10px;
+			}
+			.edit {
+				margin: 10px 10px 10px 0;
+			}
+			.delete {
+				margin: 10px 0 10px 0;
+			}
+			.selected {
+				border: 1px solid purple;
+			}
+			.clickable {
+				opacity: 1;
+			}
+			.error {
+				color: red;
+				font-weight: bold;
+			}
+			h3 {
+				display: inline-block;
+			}
+			.code {
+				border-top: 1px solid black;
+				width:100%;
+			}
+		</style>
 	</head>
 
 	<body>
@@ -39,47 +77,184 @@ include("phputils/logincheck.php");
 			</div>
 		</nav>
 		<h1>Clients</h1>
-		<table>
-			<tr>
-				<h3>
-					<td>ID</td>
-					<td>Given Name</td>
-					<td>Surname</td>
-					<td>Address</td>
-					<td>Phone</td>
-					<td>Mobile</td>
-					<td>Email</td>
-				</h3>
-			</tr>
-		</table>
-		
+
+		<?php 
+			$query= "SELECT * FROM CLIENT";
+			$stmt = oci_parse($conn, $query);
+			if(!oci_execute($stmt)) {
+				echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
+				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+			}
+		?>
+
+		<div id="tabs">
+		  <ul>
+		    <li><a href="#tabs-1">View Clients</a></li>
+		    <li><a href="#tabs-2">Add Client</a></li>
+		  </ul>
+		  <div id="tabs-1">
+
+		  	<?php 
+				if(isset($_GET["Action"])) {
+					switch($_GET["Action"]){
+						case "Edit":
+							break;
+		  	?>
+		  	<?php 
+
+
+		  	?>
+		  	<?php 
+		  		case "DeleteConfirm":
+            		$query = "DELETE FROM CLIENT WHERE CLIENT_ID=".$_POST["clientid"];
+					$stmt = oci_parse($conn,$query);
+					if (oci_execute($stmt)) {
+						echo '<h2>Record Deleted</h2>';
+						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+					}
+					else {
+						echo '<h2 class="error">Deletion Failed</h2>';	
+						echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+					}
+					break;
+            	case "AddSuccess":
+            		echo '<h2>Record Added successfully</h2></br>';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+            		break;
+            	case "AddFail":
+            		echo '<h2 class="error">Unable to add record</h2></br>';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+            		break;
+				default:
+					header("location: clients.php");	  	
+		  	?>
+
+		  	<?php 
+		  		break;
+		  		}
+		  	}
+		  	?>
+		  	<?php 
+		  		if(!isset($_GET["Action"])) 
+		  		{
+
+		  	?>
+				<table id="clients" class="display" cellspacing="0" width="100%">
+					<thead>
+						<td>ID</td>
+						<td>Given Name</td>
+						<td>Surname</td>
+						<td>Address</td>
+						<td>Phone</td>
+						<td>Mobile</td>
+						<td>Email</td>
+					</thead>
+
+					<tfoot>
+						<td>ID</td>
+						<td>Given Name</td>
+						<td>Surname</td>
+						<td>Address</td>
+						<td>Phone</td>
+						<td>Mobile</td>
+						<td>Email</td>
+					</tfoot>
+					<tbody>
+						<?php 
+							while($row = oci_fetch_array($stmt))
+							{
+						?>
+						<tr>
+							<td><?php echo $row[0]; ?></td>
+							<td><?php echo $row[1]; ?></td>
+							<td><?php echo $row[2]; ?></td>
+							<td><?php echo $row[3]; ?></td>
+							<td><?php echo $row[4]; ?></td>
+							<td><?php echo $row[5]; ?></td>
+							<td><?php echo $row[6]; ?></td>
+						</tr>
+						<?php 
+						}
+						?>
+					</tbody>
+				</table>
+				<div class="tablebuttons">
+					<button class="edit btn btn-lg btn-primary" onClick="editClient();">Edit</button>
+					<button class="delete btn btn-lg btn-danger" onClick="deleteClient();">Delete</button>
+				</div>
+		  </div>
+		  	<?php 
+		  	}
+		  	?>
+		  <div id="tabs-2">
+		  	<h2>Insert a new Client</h2>
+		  	<?php
+	        	if (!isset($_GET["Action"]) || $_GET['Action'] !="Add")
+		        	{
+		        ?>
+	        	<form method="post" action="clients.php?Action=Add">
+					<p>Given Name <input type="text" name="givenname"></p>
+					<p>Surname <input type="text" name="familyname"></p>
+					<p>Address <input type="text" name="address"></p>
+					<p>Phone <input type="text" name="phone"></p>
+					<p>Mobile <input type="text" name="mobile"></p>
+					<p>Email <input type="text" name="email"></p>
+		            <div class="submitButtons">
+						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+		            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+		            </div>
+	            </form>
+		        <?php 
+		    		} else {
+		                $query = "INSERT INTO CLIENT (CLIENT_ID, CLIENT_GIVENNAME, CLIENT_FAMILYNAME, CLIENT_ADDRESS, CLIENT_PHONE, CLIENT_MOBILE, CLIENT_EMAIL) VALUES(SEQ_CLIENT_ID.NEXTVAL, :gn, :fn, :add, :ph, :mob, :em)";
+						$stmt = oci_parse($conn, $query);
+						$gn = $_POST["givenname"];
+						$fn = $_POST["familyname"];
+						$add = $_POST["address"];
+						$ph = $_POST["phone"];
+						$mob = $_POST["mobile"];
+						$em = $_POST["email"];
+						oci_bind_by_name($stmt, ":gn", $gn);
+						oci_bind_by_name($stmt, ":fn", $fn);
+						oci_bind_by_name($stmt, ":add", $add);
+						oci_bind_by_name($stmt, ":ph", $ph);
+						oci_bind_by_name($stmt, ":mob", $mob);
+						oci_bind_by_name($stmt, ":em", $em);
+		                if(oci_execute($stmt)) {
+		                	header("location: clients.php?Action=AddSuccess");
+		                } else {
+		                	header("location: clients.php?Action=AddFail");
+		                }
+		            }
+		        ?>
+		  </div>
+		</div>		
 		<?php
-		$conn = oci_connect("s24222232", "monash00", "FIT2076") or die("Couldn't logon.");
-		$query = "SELECT * FROM CLIENT ORDER BY CLIENT_ID";
-		$stmt = oci_parse($conn, $query);
+		// $conn = oci_connect("s24222232", "monash00", "FIT2076") or die("Couldn't logon.");
+		// $query = "SELECT * FROM CLIENT ORDER BY CLIENT_ID";
+		// $stmt = oci_parse($conn, $query);
+		// oci_execute($stmt);
+		// while ($row = oci_fetch_array($stmt)) {
+		// 	echo '<tr>';
+		// 	echo '<td>' . $row["CLIENT_ID"] . '</td>';
+		// 	echo '<td>' . $row["CLIENT_GIVENNAME"] . '</td>';
+		// 	echo '<td>' . $row["CLIENT_FAMILYNAME"] . '</td>';
+		// 	echo '<td>' . $row["CLIENT_ADDRESS"] . '</td>';
+		// 	echo '<td>' . $row["CLIENT_PHONE"] . '</td>';
+		// 	echo '<td>' . $row["CLIENT_MOBILE"] . '</td>';
+		// 	//need email integration
+		// 	echo '<td>' . $row["CLIENT_EMAIL"] . '</td>';
+		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Update">Update</a></td>';
+		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Delete">Delete</a></td>';
+		// 	echo '</tr>';
+		// }
+		// echo '</table>';
 		
-		while ($row = oci_fetch_array($stmt)) {
-			echo '<tr>';
-			echo '<td>' . $row["CLIENT_ID"] . '</td>';
-			echo '<td>' . $row["CLIENT_GIVENNAME"] . '</td>';
-			echo '<td>' . $row["CLIENT_FAMILYNAME"] . '</td>';
-			echo '<td>' . $row["CLIENT_ADDRESS"] . '</td>';
-			echo '<td>' . $row["CLIENT_PHONE"] . '</td>';
-			echo '<td>' . $row["CLIENT_MOBILE"] . '</td>';
-			//need email integration
-			echo '<td>' . $row["CLIENT_EMAIL"] . '</td>';
-			echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Update">Update</a></td>';
-			echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Delete">Delete</a></td>';
-			echo '</tr>';
-		}
-		echo '</table>';
-		
-		if (empty($_POST["clientid"]))
-		{
+		// if (empty($_POST["clientid"]))
+		// {
 			?>
-			<form method="post" Action="clients.php">
+<!-- 			<form method="post" Action="clients.php">
 				<h2>Insert a new Client</h2>
-				<p>Client ID: <?php echo $_POST["clientid"] ?></p>
 				<p>Given Name <input type="text" name="givenname"</p>
 				<p>Surname <input type="text" name="familyname"</p>
 				<p>Address <input type="text" name="address"</p>
@@ -88,42 +263,47 @@ include("phputils/logincheck.php");
 				<p>Email <input type="text" name="email"</p>
 				<input type="Submit" value="Submit">
 				<input type="Reset" value="Clear">
-			</form>
-			<?php
-		}
-		else {
-			$query = "INSERT INTO CLIENT VALUES (SEQ_CLIENT_ID.NEXTVAL, :gn, :fn, :add, :ph, :mob, :em)";
-			$stmt = oci_parse($conn, $query);
-			
-			$p1 = $_POST["givenname"];
-			$p2 = $_POST["familyname"];
-			$p3 = $_POST["address"];
-			$p4 = $_POST["phone"];
-			$p5 = $_POST["mobile"];
-			$p6 = $_POST["email"];
-			oci_bind_by_name($stmt, ":gn", $p1);
-			oci_bind_by_name($stmt, ":fn", $p2);
-			oci_bind_by_name($stmt, ":add", $p3);
-			oci_bind_by_name($stmt, ":ph", $p4);
-			oci_bind_by_name($stmt, ":mob", $p5);
-			oci_bind_by_name($stmt, ":em", $p6);
-			
-			if (@oci_execute($stmt)) {
-				echo '<p>Insert successful</p>';
-			} else {
-				echo '<p>Insert failed</p>';
-			}
-			
-			/* Refresh the page */
-			header('Location: ' . $_SERVER['HTTP_REFERER']);
-		}
-		
-		/* add client button as indicated in spec */
-		// <img src="">
-		?>
-		
+			</form> -->
+
+		<div class="code">
+			<a href="phputils/displaysource.php?filename=clients.php">
+				<img src="assets/client.png">
+			</a>
+		</div>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+		<script type="text/javascript">
+			$("input").prop('required',true);
+			$(document).ready(function(){
+			    $('#clients').DataTable();
+			});
+			$(function() {
+	    		$( "#tabs" ).tabs();
+	  		});
+	  		$(document).on('click', 'tr', function () {
+	  			$('tr').removeClass('selected');
+		        $(this).addClass('selected');
+		        $('.tableButtons').addClass('clickable');
+	  		});
+			// function editMake() {
+			// 	var rowcol1 = $('tr.selected td:first-child');
+			// 	var rowcol2 = $('tr.selected td:last-child');
+			// 	if (rowcol1) {
+			// 		//pass the makeid and name as its more efficient, less coupled
+			// 		window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+			// 	}
+			// };
+			// function deleteMake() {
+			// 	var rowcol1 = $('tr.selected td:first-child');
+			// 	var rowcol2 = $('tr.selected td:last-child');
+			// 	if (rowcol1) {
+			// 		//pass the makeid and name as its more efficient, less coupled
+			// 		window.location.href = "makes.php?Action=Delete&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
+			// 	}
+			// };
+		</script>
 
 	</body>
 
