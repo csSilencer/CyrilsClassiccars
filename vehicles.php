@@ -2,6 +2,28 @@
 session_start(); 
 ob_start();
 include("phputils/logincheck.php");
+include("phputils/conn.php");
+
+function getModelByID($id, $conn) {
+	$query = "SELECT MODEL_NAME FROM CMODEL WHERE MODEL_ID=".$id;
+	$stmt = oci_parse($conn, $query);
+	if(@oci_execute($stmt)) {
+		return oci_fetch_array($stmt);
+	} else {
+		return "unable to fetch";
+	}
+}
+
+function getMakeByID($id, $conn) {
+	$query = "SELECT MAKE_NAME FROM MAKE WHERE MAKE_ID=".$id;
+	$stmt = oci_parse($conn, $query);
+	if(@oci_execute($stmt)) {
+		return oci_fetch_array($stmt);
+	} else {
+		return "unable to fetch";
+	}
+}
+
 ?>
 <html>
 	<head>
@@ -10,8 +32,42 @@ include("phputils/logincheck.php");
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.11.4.custom/jquery-ui.min.css">
 	<style>
+		.tablebuttons {
+			float:right;
+			margin: 15px 10px 0px 0px;
+			opacity: 0.5;
+		}
+		.submitButtons {
+			padding-top: 10px;
+			display:inline-block;
+			margin: 0px 0px 0px 10px;
+		}
+		.edit {
+			margin: 10px 10px 10px 0;
+		}
+		.delete {
+			margin: 10px 0 10px 0;
+		}
+		.selected {
+			border: 1px solid purple;
+		}
+		.clickable {
+			opacity: 1;
+		}
+		.error {
+			color: red;
+			font-weight: bold;
+		}
+		h3 {
+			display: inline-block;
+		}
+		.code {
+			border-top: 1px solid black;
+			width:100%;
+		}
     </style>
 	</head>
 
@@ -50,20 +106,82 @@ include("phputils/logincheck.php");
 		  </ul>
 		  <div id="fragment-1">
 		  	<?php 
-		  		if (!isset($_GET['Action']) || $_GET['Action'] != "Search") {
+		  		if (!isset($_GET['Action'])) {
 		  	?>
 		  	<h2>Search for a Vehicle in the Database</h2>
 		  	<form method="post" action="vehicles.php?Action=Search">
-		  		<span>Registration Number</span><input type="text" name="rego_no"></br>
-		  		<span>Make</span><input type="text" name="make_name"></br>
-		  		<span>Model</span><input type="text" name="model_name"></br>
-		  		<input type="submit" value="Submit">
-	            <input type="Reset" value="Reset">
+		  		<h3>Registration Number:</h3><input type="text" name="rego_no"></br>
+		  		<h3>Make:</h3><input type="text" name="make_name"></br>
+		  		<h3>Model:</h3><input type="text" name="model_name">
+				<div class="submitbuttons">
+					<input class="btn btn-lg btn-primary" type="button" value="All" onClick="window.location.href='vehicles.php?Action=SearchAll'">
+            		<input class="btn btn-lg btn-primary" type="submit" value="Submit">
+            		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='vehicles.php'">
+            	</div>
 		  	</form>
 		  	<?php 
 		  		} else {
-		  			echo "<p>".print_r($_POST)."</p>";
-		  		}
+		  			switch($_GET["Action"]) {
+		  				case "Search":
+		  					echo "<p>".print_r($_POST)."</p>";
+		  					$query = "SELECT * FROM CAR";
+		  					break;
+		  				case "SearchAll":
+		  					$query = "SELECT * FROM CAR";
+		  					break;
+		  			}
+		  	?>
+		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
+			  	<thead>
+			  		<th>Make</th>
+			  		<th>Model</th>
+			  		<th>Registration</th>
+			  		<th>Body Type</th>
+			  		<th>Transmission</th>
+			  		<th>Year</th>
+			  		<th>Colour</th>
+			  		<th>Thumbnail</th>
+			  	</thead>
+			  	<tfoot>
+			  		<th>Make</th>
+			  		<th>Model</th>
+			  		<th>Registration</th>
+			  		<th>Body Type</th>
+			  		<th>Transmission</th>
+			  		<th>Year</th>
+			  		<th>Colour</th>
+			  		<th>Thumbnail</th>
+			  	</tfoot>
+			  	<?php 
+			  		$stmt = oci_parse($conn, $query);
+			  		if(oci_execute($stmt)) {
+			  			while($row = oci_fetch_array($stmt)) 
+			  			{
+			  	?>
+			  		<tr>
+			  			<td><?php echo getMakeByID($row["MAKE_ID"], $conn)["MAKE_NAME"];?></td>
+			  			<td><?php echo getModelByID($row["MODEL_ID"], $conn)["MODEL_NAME"];?></td>
+			  			<td><?php echo $row["CAR_REG"];?></td>
+			  			<td><?php echo $row["CAR_BODYTYPE"];?></td>
+			  			<td><?php echo $row["CAR_TRANSMISSION"];?></td>
+			  			<td><?php echo $row["CAR_YEAR"];?></td>
+			  			<td><?php echo $row["CAR_COLOUR"];?></td>
+			  			<td><!-- Car image thumbnail -->
+			  				<?php echo '<img src="vehicle.png" width="80" height="80">';?>
+			  			</td>
+			  		</tr>
+			  	<?php 
+			  	} //end while
+			  	?>
+		  	</table>
+		  	<?php 
+		  	} else {//end if
+		  		echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
+				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+		  	}
+		  	?> 	
+		  	<?php 
+		  	} //end else 
 		  	?>
 		  </div>
 
@@ -157,54 +275,57 @@ include("phputils/logincheck.php");
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 		<script src="libs/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
 		<script type="text/javascript">
-    	$(function() {
-    		$( "#tabs" ).tabs();
-  		});
+	    	$(function() {
+	    		$( "#tabs" ).tabs();
+	  		});
+			$(document).ready(function(){
+			    $('#vehicles').DataTable();
+			});
+	  		function showMyImage(fileInput) {
+	  			console.log(fileInput);
+		        var files = fileInput.files;
+		        for (var i = 0; i < files.length; i++) {           
+		            var file = files[i];
+		            var imageType = /image.*/;     
+		            if (!file.type.match(imageType)) {
+		                continue;
+		            }           
+		            countfile = fileInput.getAttribute("name").slice(-1);
+		            var img=document.getElementById("thumbnail_" + countfile);            
+		            img.file = file;    
+		            var reader = new FileReader();
+		            reader.onload = (function(aImg) { 
+		                return function(e) { 
+		                    aImg.src = e.target.result; 
+		                }; 
+		            })(img);
+		            reader.readAsDataURL(file);
+		        }    
+		    }
+			function addField(){
+			    var lastfile = $('form input:file').last();
+			    var countfile = ($('form input:file').length)+1;
+			    $( "<input/>", {
+			        "type": "file",
+			        "accept": "image/*",
+			        "name": "file_"+countfile,
+			        "id": "file_"+countfile,
+			        "onchange": "showMyImage(this)"
+			    }).insertAfter(lastfile);
 
-  		function showMyImage(fileInput) {
-  			console.log(fileInput);
-	        var files = fileInput.files;
-	        for (var i = 0; i < files.length; i++) {           
-	            var file = files[i];
-	            var imageType = /image.*/;     
-	            if (!file.type.match(imageType)) {
-	                continue;
-	            }           
-	            countfile = fileInput.getAttribute("name").slice(-1);
-	            var img=document.getElementById("thumbnail_" + countfile);            
-	            img.file = file;    
-	            var reader = new FileReader();
-	            reader.onload = (function(aImg) { 
-	                return function(e) { 
-	                    aImg.src = e.target.result; 
-	                }; 
-	            })(img);
-	            reader.readAsDataURL(file);
-	        }    
-	    }
-		function addField(){
-		    var lastfile = $('form input:file').last();
-		    var countfile = ($('form input:file').length)+1;
-		    $( "<input/>", {
-		        "type": "file",
-		        "accept": "image/*",
-		        "name": "file_"+countfile,
-		        "id": "file_"+countfile,
-		        "onchange": "showMyImage(this)"
-		    }).insertAfter(lastfile);
-
-		    $("</br>").insertAfter($('form input:file').last());
-		    
-		    $( "<img/>", {
-		    	"id": "thumbnail_" +countfile,
-		    	"name": "thumbnail_"+countfile,
-		    	"style": "width:20%; margin-top:10px;",
-		    	"src": "",
-		    	"alt": "image"
-		    }).insertAfter($('form input:file').last());
-		}
+			    $("</br>").insertAfter($('form input:file').last());
+			    
+			    $( "<img/>", {
+			    	"id": "thumbnail_" +countfile,
+			    	"name": "thumbnail_"+countfile,
+			    	"style": "width:20%; margin-top:10px;",
+			    	"src": "",
+			    	"alt": "image"
+			    }).insertAfter($('form input:file').last());
+			}
     	</script>
 	</body>
 
