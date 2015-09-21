@@ -52,9 +52,7 @@ include("phputils/logincheck.php");
 		switch ($_GET["Action"])
 		{
 			case "Update": 
-				
-				echo '<form method="post" Action="clients.php?clientid='. $_GET["clientid"] .'&givenname='.$clientarray["CLIENT_GIVENNAME"].'&familyname='.$clientarray["CLIENT_FAMILYNAME"].'&address='.$clientarray["CLIENT_ADDRESS"].'&phone='.$clientarray["CLIENT_PHONE"].'&mobile='.$clientarray["CLIENT_MOBILE"].'&email='.$clientarray["CLIENT_EMAIL"].'&Action=ConfirmUpdate">';
-					?>
+				?>
 				<h1>Update Client</h1>
 				<p>Client ID: <?php echo $clientarray["CLIENT_ID"] ?></p>
 				<p>Given Name <input type="text" name="givenname" value="<?php echo $clientarray["CLIENT_GIVENNAME"] ?>"</p>

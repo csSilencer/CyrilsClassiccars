@@ -54,9 +54,9 @@ include("phputils/logincheck.php");
 		  	?>
 		  	<h2>Search for a Vehicle in the Database</h2>
 		  	<form method="post" action="vehicles.php?Action=Search">
-		  		<span>Registration Number</span><input type="text" name="rego_no"></br>
-		  		<span>Make</span><input type="text" name="make_name"></br>
-		  		<span>Model</span><input type="text" name="model_name"></br>
+		  		<span>Registration Number </span><input type="text" name="rego_no"></br>
+		  		<span>Make </span><input type="text" name="make_name"></br>
+		  		<span>Model </span><input type="text" name="model_name"></br>
 		  		<input type="submit" value="Submit">
 	            <input type="Reset" value="Reset">
 		  	</form>
@@ -73,15 +73,15 @@ include("phputils/logincheck.php");
 		  	?>
 		  	<h2>Add a new vehicle to the database</h2>
 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=Add">
-	        	<span>Registration number</span><input type="text" name="rego_no"></br>
-	            <span>Year</span><input type="text" name="year"></br>
-	            <span>Colour</span><input type="text" name="colour"></br>
-	            <span>Odometer</span><input type="text" name="odometer"></br>
-	            <span>Doors</span><input type="number" name="door_no" min="1" max="12" value="5"></br>
-	            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5"></br>
-	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2"></br>
-	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-	            <span>Car image</span>
+	        	<span>Registration number </span><input type="text" name="rego_no"></br>
+	            <span>Year </span><input type="text" name="year"></br>
+	            <span>Colour </span><input type="text" name="colour"></br>
+	            <span>Odometer </span><input type="text" name="odometer"></br>
+	            <span>Doors </span><input type="number" name="door_no" min="1" max="12" value="5"></br>
+	            <span>Seats </span><input type="number" name="seat_no" min="1" max="12" value="5"></br>
+	            <span>Engine Size </span><input type="number" name="engine_size" min="0" max="10" value="2"></br>
+	            <span>Cylinders </span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
+	            <span>Car image </span>
 	            <a href="javascript:void(0);" onClick="addField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
@@ -93,13 +93,13 @@ include("phputils/logincheck.php");
 				<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
-	            <span>Make Name</span><select name="make_name">
+	            <span>Make Name </span><select name="make_name">
 	            	<option>Dummy</option>
 	            </select></br>
-	            <span>Model Name</span><select name="model_name">
+	            <span>Model Name </span><select name="model_name">
 	            	<option>Dummy</option>
 	            </select></br>
-	            <span>Body Type</span><select name="body_type">
+	            <span>Body Type </span><select name="body_type">
 	            	<option value="Hatch">Hatch</option>
 	            	<option value="Sedan">Sedan</option>
 	            	<option value="Wagon">Wagon</option>
@@ -108,18 +108,18 @@ include("phputils/logincheck.php");
 	            	<option value="Convertible">Convertible</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Transmission</span><select name="car_transmission">
+	            <span>Transmission </span><select name="car_transmission">
 	            	<option value="Auto">Auto</option>
 	                <option value="Manual">Manual</option>
 	                <option value="Sports">Sports</option>
 	            </select></br>
-	            <span>Fuel Type</span><select name="fuel_type">
+	            <span>Fuel Type </span><select name="fuel_type">
 	            	<option value="Petrol">Petrol</option>
 	            	<option value="Diesel">Diesel</option>
 	            	<option value="LPGas">LPGas</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Drive Type</span><select name="drive_type">
+	            <span>Drive Type </span><select name="drive_type">
 	            	<option value="Front wheel drive">Front wheel drive</option>
 	            	<option value="Rear wheel drive">Rear wheel drive</option>
 	            	<option value="Four wheel drive">Four wheel drive</option>
