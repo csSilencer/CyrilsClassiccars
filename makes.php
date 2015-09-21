@@ -81,8 +81,7 @@ include("phputils/conn.php")
 			$query= "SELECT * FROM MAKE";
 			$stmt = oci_parse($conn, $query);
 			if(!oci_execute($stmt)) {
-				echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
-				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+				header("error.php?Reason=BackendError");
 			}
 		?>
 
@@ -227,7 +226,7 @@ include("phputils/conn.php")
 	            <h3>Make Name: </h3><input type="text" name="makename">
 	            <div class="submitButtons">
 					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
-	            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+	            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
 	            </div>
 	            
 		        <?php 

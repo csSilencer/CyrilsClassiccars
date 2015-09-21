@@ -24,6 +24,16 @@ function getMakeByID($id, $conn) {
 	}
 }
 
+function yearsToToday() {//deprecated
+	$start = 1807;
+	$today = date('Y');
+	$ret = array();
+	for($i = $start; $i < $today; $i++) {
+		array_push($ret, $i);
+	}
+	return $ret;
+}
+
 ?>
 <html>
 	<head>
@@ -116,7 +126,7 @@ function getMakeByID($id, $conn) {
 				<div class="submitbuttons">
 					<input class="btn btn-lg btn-primary" type="button" value="All" onClick="window.location.href='vehicles.php?Action=SearchAll'">
             		<input class="btn btn-lg btn-primary" type="submit" value="Submit">
-            		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='vehicles.php'">
+            		<input class="btn btn-lg btn-danger" type="Reset" value="Clear">
             	</div>
 		  	</form>
 		  	<?php 
@@ -125,14 +135,17 @@ function getMakeByID($id, $conn) {
 		  				case "Search":
 		  					echo "<p>".print_r($_POST)."</p>";
 		  					$query = "SELECT * FROM CAR";
+			  				$stmt = oci_parse($conn, $query);
 		  					break;
 		  				case "SearchAll":
 		  					$query = "SELECT * FROM CAR";
+							$stmt = oci_parse($conn, $query);
 		  					break;
 		  			}
 		  	?>
 		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
 			  	<thead>
+			  		<th>Car ID</th>
 			  		<th>Make</th>
 			  		<th>Model</th>
 			  		<th>Registration</th>
@@ -143,6 +156,7 @@ function getMakeByID($id, $conn) {
 			  		<th>Thumbnail</th>
 			  	</thead>
 			  	<tfoot>
+			  		<th>Car ID</th>
 			  		<th>Make</th>
 			  		<th>Model</th>
 			  		<th>Registration</th>
@@ -153,12 +167,12 @@ function getMakeByID($id, $conn) {
 			  		<th>Thumbnail</th>
 			  	</tfoot>
 			  	<?php 
-			  		$stmt = oci_parse($conn, $query);
 			  		if(oci_execute($stmt)) {
 			  			while($row = oci_fetch_array($stmt)) 
 			  			{
 			  	?>
 			  		<tr>
+						<td><?php echo $row["CAR_ID"];?></td>
 			  			<td><?php echo getMakeByID($row["MAKE_ID"], $conn)["MAKE_NAME"];?></td>
 			  			<td><?php echo getModelByID($row["MODEL_ID"], $conn)["MODEL_NAME"];?></td>
 			  			<td><?php echo $row["CAR_REG"];?></td>
@@ -174,10 +188,14 @@ function getMakeByID($id, $conn) {
 			  	} //end while
 			  	?>
 		  	</table>
+			<div class="tablebuttons">
+				<button class="edit btn btn-lg btn-primary" onClick="editVehicle();">Edit</button>
+				<button class="delete btn btn-lg btn-danger" onClick="deleteVehicle();">Delete</button>
+				<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
+			</div>
 		  	<?php 
 		  	} else {//end if
-		  		echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
-				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+		  		header("error.php?Reason=BackendError");
 		  	}
 		  	?> 	
 		  	<?php 
@@ -191,31 +209,58 @@ function getMakeByID($id, $conn) {
 		  	?>
 		  	<h2>Add a new vehicle to the database</h2>
 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=Add">
-	        	<span>Registration number</span><input type="text" name="rego_no"></br>
-	            <span>Year</span><input type="text" name="year"></br>
-	            <span>Colour</span><input type="text" name="colour"></br>
-	            <span>Odometer</span><input type="text" name="odometer"></br>
-	            <span>Doors</span><input type="number" name="door_no" min="1" max="12" value="5"></br>
-	            <span>Seats</span><input type="number" name="seat_no" min="1" max="12" value="5"></br>
-	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="10" value="2"></br>
+	        	<span>Registration number</span><input type="text" name="rego_no" required></br>
+	            <span>Year</span><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
+	            <span>Colour</span><input type="text" name="colour" required></br>
+	            <span>Odometer</span><input type="number" name="odometer" min="1" value="10000"></br>
+	            <span>Doors</span><input type="number" name="door_no" min="1" max="6" value="4"></br>
+	            <span>Seats</span><input type="number" name="seat_no" min="1" max="15" value="5"></br>
+	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="5000" value="1000"></br>
 	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
 	            <span>Car image</span>
-	            <a href="javascript:void(0);" onClick="addField();">
+	            <a class='addfield' href="javascript:void(0);" onClick="addField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
-	            <a href="javascript:void(0);" onClick="removeField">
-	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
-	            </a>
-
-	            <input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
-				<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
+	            <div class="imageinput" id="file_1">
+	            	<input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
+					<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
+		            <a href="javascript:void(0);" onClick="removeField(this)">
+		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
+		            </a>
+	            </div>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
 	            <span>Make Name</span><select name="make_name">
-	            	<option>Dummy</option>
+	            	<?php 
+	            		$query = "SELECT MAKE_NAME FROM MAKE";
+	            		$stmt = oci_parse($conn, $query);
+	            		if(oci_execute($stmt)) {
+	            			while($row = oci_fetch_array($stmt)) 
+	            			{
+	            	?>
+	            	<option><?php echo $row["MAKE_NAME"];?></option>
+	            	<?php 
+	            		}
+	            	} else {
+	            		header("error.php?Reason=BackendError");
+	            	}
+	            	?>
 	            </select></br>
 	            <span>Model Name</span><select name="model_name">
-	            	<option>Dummy</option>
+	            	<?php 
+	            		$query = "SELECT MODEL_NAME FROM CMODEL";
+	            		$stmt = oci_parse($conn, $query);
+	            		if(oci_execute($stmt)) {
+	            			while($row = oci_fetch_array($stmt)) 
+	            			{
+	            	?>
+	            	<option><?php echo $row["MODEL_NAME"];?></option>
+	            	<?php 
+	            		}
+	            	} else {
+	            		header("error.php?Reason=BackendError");
+	            	}
+	            	?>
 	            </select></br>
 	            <span>Body Type</span><select name="body_type">
 	            	<option value="Hatch">Hatch</option>
@@ -284,7 +329,27 @@ function getMakeByID($id, $conn) {
 			$(document).ready(function(){
 			    $('#vehicles').DataTable();
 			});
-	  		function showMyImage(fileInput) {
+			$(document).on('click', 'tr', function () {
+	  			$('tr').removeClass('selected');
+		        $(this).addClass('selected');
+		        $('.tableButtons').addClass('clickable');
+	  		});
+			function editVehicle () {
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "vehicles.php?Action=Edit&Car_ID=" + rowcol1[0].innerHTML;
+				}
+			};
+			function deleteVehicle () {
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "vehicles.php?Action=Delete&Car_ID=" + rowcol1[0].innerHTML;
+				}
+			};
+
+	  		function showMyImage (fileInput) {
 	  			console.log(fileInput);
 		        var files = fileInput.files;
 		        for (var i = 0; i < files.length; i++) {           
@@ -304,19 +369,28 @@ function getMakeByID($id, $conn) {
 		            })(img);
 		            reader.readAsDataURL(file);
 		        }    
-		    }
-			function addField(){
-			    var lastfile = $('form input:file').last();
-			    var countfile = ($('form input:file').length)+1;
+		    };
+			function addField () {
+			    var lastfile = $('.imageinput').last();
+			    var countfile = ($('.imageinput').length)+1;
+			    if(lastfile.length == 0) {
+			    	lastfile = $('.addfield');
+			    }
+
+			    $("<div>", {
+			    	"class": "imageinput",
+			    	"id": "file_"+countfile
+			    }).insertAfter(lastfile);
+
 			    $( "<input/>", {
 			        "type": "file",
 			        "accept": "image/*",
 			        "name": "file_"+countfile,
 			        "id": "file_"+countfile,
 			        "onchange": "showMyImage(this)"
-			    }).insertAfter(lastfile);
+			    }).appendTo($('.imageinput').last());
 
-			    $("</br>").insertAfter($('form input:file').last());
+			    $("</br>").appendTo($('.imageinput').last());
 			    
 			    $( "<img/>", {
 			    	"id": "thumbnail_" +countfile,
@@ -324,8 +398,13 @@ function getMakeByID($id, $conn) {
 			    	"style": "width:20%; margin-top:10px;",
 			    	"src": "",
 			    	"alt": "image"
-			    }).insertAfter($('form input:file').last());
-			}
+			    }).appendTo($('.imageinput').last());
+
+			    $('<a href="javascript:void(0);" onClick="removeField(this);"><img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png"></a>').appendTo($('.imageinput').last());
+			};
+			function removeField (field) {
+				field.closest('.imageinput').remove();
+			};
     	</script>
 	</body>
 
