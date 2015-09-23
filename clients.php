@@ -3,6 +3,15 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
+//takes a y/n value and spits out html options for dropdown
+function mailingListFn($yn) {
+	if($yn == 'Y') {
+		return '<option value="Y" selected>Y</option>' . '<option value="N">N</option>';
+	} else {
+		return '<option value="N" selected>N</option>' . '<option value="Y">Y</option>';
+	}
+}
+
 ?>
 <html>
 	<head>
@@ -102,43 +111,119 @@ include("phputils/conn.php");
 					switch($_GET["Action"])
 					{
 						case "Edit":
-							/* insert code here */
-						break;
+			?>
+							<h2>The record you are modifying:</h2>
+				        	<form method="post" action="clients.php?Action=EditConfirm">
+				        		<?php 
+				        		$query= "SELECT * FROM CLIENT WHERE CLIENT_ID=".$_GET["Client_ID"];
+								$stmt = oci_parse($conn, $query);
+								oci_execute($stmt);
+								$client = oci_fetch_array($stmt);
+								//send the client id over post
+								echo "<input style='display: none' name='clientid' value='".$_GET["Client_ID"]."'></input>";
+				        		echo '<h3>Given Name:</h3><input type="text" name="givenname" value="'.$client["CLIENT_GIVENNAME"].'" required><br>';
+								echo '<h3>Surname:</h3><input type="text" name="familyname" value="'.$client["CLIENT_FAMILYNAME"].'" required><br>';
+								echo '<h3>Address:</h3><input type="text" name="address" value="'.$client["CLIENT_ADDRESS"].'" required><br>';
+								echo '<h3>Phone:</h3><input type="text" name="phone" value="'.$client["CLIENT_PHONE"].'" pattern="[0-9]*" required><br>';
+								echo '<h3>Mobile:</h3><input type="text" name="mobile" value="'.$client["CLIENT_MOBILE"].'" pattern="[0-9]*" required><br>';
+								echo '<h3>Email:</h3><input type="email" name="email" value="'.$client["CLIENT_EMAIL"].'" required><br>';
+								echo '<h3>Mailing List</h3><select name="mailinglist">'.mailingListFn($client["CLIENT_MAILINGLIST"]).'</select>';
+				        		?>
+					            <div class="submitButtons">
+									<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+					            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+					            </div>
+				            </form>
+		            <?php	
+		            break;			
+		            case "EditConfirm":
+	            		$query = "UPDATE CLIENT SET CLIENT_GIVENNAME=:gn, CLIENT_FAMILYNAME=:fn, CLIENT_ADDRESS=:addy, CLIENT_PHONE=:ph, CLIENT_MOBILE=:mob, CLIENT_EMAIL=:em, CLIENT_MAILINGLIST=:mlst WHERE CLIENT_ID=".$_POST["clientid"];
+		                $stmt = oci_parse($conn, $query);
+						$gn = $_POST["givenname"];
+						$fn = $_POST["familyname"];
+						$addy = $_POST["address"];
+						$ph = $_POST["phone"];
+						$mob = $_POST["mobile"];
+						$em = $_POST["email"];
+						$mlst = $_POST["mailinglist"];
+		                $stmt = oci_parse($conn,$query);
+						oci_bind_by_name($stmt, ":gn", $gn);
+						oci_bind_by_name($stmt, ":fn", $fn);
+						oci_bind_by_name($stmt, ":addy", $addy);
+						oci_bind_by_name($stmt, ":ph", $ph);
+						oci_bind_by_name($stmt, ":mob", $mob);
+						oci_bind_by_name($stmt, ":em", $em);
+						oci_bind_by_name($stmt, ":mlst", $mlst);
+		                if (@oci_execute($stmt)) {
+		                    echo "<h2>The following client record has been successfully updated</h2></br>";
+		                    echo "<h3>Client name:</h3>".$_POST["givenname"];
+		                    echo "</br>";
+		                    echo "<h3>Client ID:</h3>".$_POST["clientid"];
+		                } else {
+		                    echo "<h2 class='error'>Error updating make record</h2>";
+		                }
+		                echo "<input class='btn btn-lg btn-primary submitButtons' type='button' value='Return to List' OnClick='window.location=\"clients.php\"'>";
+	                break;
+		            	break;
+		            	case "Delete":
+		            ?>
+			            	<h2>The record you are deleting:</h2>
+			            	<form method="post" action="clients.php?Action=DeleteConfirm">
 
+			                	<?php
+			                		$query = "SELECT * FROM CLIENT WHERE CLIENT_ID=".$_GET["Client_ID"];
+			                		$stmt = oci_parse($conn,$query);
+			                		if(@oci_execute($stmt)){
+				                		$row = oci_fetch_array($stmt);
+				                		echo '<input style="display:none;" type="text" name="clientid" value="'.$_GET["Client_ID"].'">';
+				                	} else {
+				                		header("error.php?Reason=BackendError");
+				                	}
+			                	?>
+			                	<h3>Client ID:</h3><?php echo $row[0];?><br>
+								<h3>Given Name:</h3><?php echo $row[1];?><br>
+								<h3>Surname:</h3><?php echo $row[2];?><br>
+								<h3>Address:</h3><?php echo $row[3];?><br>
+								<h3>Phone:</h3><?php echo $row[4];?><br>
+								<h3>Mobile:</h3><?php echo $row[5];?><br>
+								<h3>Email:</h3><?php echo $row[6];?>
+
+			                	<div class="submitbuttons">
+			                		<input class="btn btn-lg btn-primary" type="submit" value="Delete">
+			                		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='clients.php'">
+			                	</div>
+			                </form>
+		            <?php 
+		            	break;
+		            ?>
+		            <?php
 		  				case "DeleteConfirm":
 							/* drop constraints */
-							$q1 = "ALTER TABLE CLIENT DISABLE CONSTRAINT CLIENT_PK";
 		            		$query = "DELETE FROM CLIENT WHERE CLIENT_ID=".$_POST["clientid"];
-							$q2 - "ALTER TABLE CLIENT ENABLE CONSTRAINT CLIENT_PK";
-							$s1 = oci_parse($conn, $q1);
 							$stmt = oci_parse($conn,$query);
-							$s2 = oci_parse($conn, $q2);
-							oci_execute($s1);
 							if (@oci_execute($stmt)) {
-								oci_execute($s2);
 								echo '<h2>Record Deleted</h2>';
 								echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
 							}
 							else {
-								oci_execute($s2);
 								echo '<h2 class="error">Deletion Failed</h2>';	
 								echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
 							}
-						break;
+							break;
 						
 		            	case "AddSuccess":
 		            		echo '<h2>Record Added successfully</h2></br>';
 		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
-		            	break;
+		            		break;
 		            	
 		            	case "AddFail":
 		            		echo '<h2 class="error">Unable to add record</h2></br>';
 		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
-		            	break;
+		            		break;
 						
 						default:
 							header("location: clients.php");	  	
-				  		break;
+				  			break;
 		  			}
 		  		}
 		  	
@@ -204,30 +289,30 @@ include("phputils/conn.php");
 		  	if (!isset($_GET['Action']) || $_GET['Action'] != "Add")
 			{
 		    ?>
-	        	<form method="get" name="insertform" action="clients.php?Action=Add">
-					<p>Given Name <input type="text" name="givenname"></p>
-					<p>Surname <input type="text" name="familyname"></p>
-					<p>Address <input type="text" name="address"></p>
-					<p>Phone <input type="text" name="phone"></p>
-					<p>Mobile <input type="text" name="mobile"></p>
-					<p>Email <input type="text" name="email"></p>
-					<p>Mailing List <select name="mailinglist">
+ 	        	<form method="post" action="clients.php?Action=Add">
+					<h3>Given Name:</h3><input type="text" name="givenname" required><br>
+					<h3>Surname:</h3><input type="text" name="familyname" required><br>
+					<h3>Address:</h3><input type="text" name="address" required><br>
+					<h3>Phone:</h3><input type="text" name="phone" pattern="[0-9]*" required><br>
+					<h3>Mobile:</h3><input type="text" name="mobile" pattern="[0-9]*" required><br>
+					<h3>Email:</h3><input type="email" name="email">
+					<h3>Mailing List</h3><select name="mailinglist">
 						<option>Y</option>
 						<option>N</option>
-					</select></p>
+					</select>
 		            <div class="submitButtons">
 						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 		            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
 		            </div>
-	            </form>      
+	            </form>
 		    <?php
 		    	} else {
-		                $query = "INSERT INTO CLIENT VALUES(SEQ_CLIENT_ID.NEXTVAL, :gn, :fn, :add, :ph, :mob, :em, :ml)";
+		                $query = "INSERT INTO CLIENT (CLIENT_ID, CLIENT_GIVENNAME, CLIENT_FAMILYNAME, CLIENT_ADDRESS, CLIENT_PHONE, CLIENT_MOBILE, CLIENT_EMAIL, CLIENT_MAILINGLIST) VALUES(SEQ_CLIENT_ID.NEXTVAL, :gn, :fn, :addy, :ph, :mob, :em, :ml)";
 		                //$query = "INSERT INTO CLIENT VALUES (SEQ_CLIENT_ID.NEXTVAL, " . $test . ", 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'Y')";
 						$stmt = oci_parse($conn, $query);
 						$gn = $_POST["givenname"];
 						$fn = $_POST["familyname"];
-						$add = $_POST["address"];
+						$addy = $_POST["address"];
 						$ph = $_POST["phone"];
 						$mob = $_POST["mobile"];
 						$em = $_POST["email"];
@@ -235,7 +320,7 @@ include("phputils/conn.php");
 					
 						oci_bind_by_name($stmt, ":gn", $gn);
 						oci_bind_by_name($stmt, ":fn", $fn);
-						oci_bind_by_name($stmt, ":add", $add);
+						oci_bind_by_name($stmt, ":addy", $addy);
 						oci_bind_by_name($stmt, ":ph", $ph);
 						oci_bind_by_name($stmt, ":mob", $mob);
 						oci_bind_by_name($stmt, ":em", $em);
@@ -245,13 +330,12 @@ include("phputils/conn.php");
 		                	header("location: clients.php?Action=AddSuccess");
 		                } else {
 		                	header("location: clients.php?Action=AddFail");
-		                	echo $query;
 		                }
 		            }
 		        
 		        ?>
 		  </div>
-			<div id="tabs-3">
+		  <div id="tabs-3">
 				<?php
 					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
@@ -276,44 +360,9 @@ include("phputils/conn.php");
 					}
 				
 				?>
-			</div>
+		  </div>
 			
-		</div>		
-		<?php
-		// $conn = oci_connect("s24222232", "monash00", "FIT2076") or die("Couldn't logon.");
-		// $query = "SELECT * FROM CLIENT ORDER BY CLIENT_ID";
-		// $stmt = oci_parse($conn, $query);
-		// oci_execute($stmt);
-		// while ($row = oci_fetch_array($stmt)) {
-		// 	echo '<tr>';
-		// 	echo '<td>' . $row["CLIENT_ID"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_GIVENNAME"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_FAMILYNAME"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_ADDRESS"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_PHONE"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_MOBILE"] . '</td>';
-		// 	//need email integration
-		// 	echo '<td>' . $row["CLIENT_EMAIL"] . '</td>';
-		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Update">Update</a></td>';
-		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Delete">Delete</a></td>';
-		// 	echo '</tr>';
-		// }
-		// echo '</table>';
-		
-		// if (empty($_POST["clientid"]))
-		// {
-			?>
-<!-- 			<form method="post" Action="clients.php">
-				<h2>Insert a new Client</h2>
-				<p>Given Name <input type="text" name="givenname"</p>
-				<p>Surname <input type="text" name="familyname"</p>
-				<p>Address <input type="text" name="address"</p>
-				<p>Phone <input type="text" name="phone"</p>
-				<p>Mobile <input type="text" name="mobile"</p>
-				<p>Email <input type="text" name="email"</p>
-				<input type="Submit" value="Submit">
-				<input type="Reset" value="Clear">
-			</form> -->
+		</div>
 
 		<div class="code">
 			<a href="phputils/displaysource.php?filename=clients.php">
@@ -337,25 +386,20 @@ include("phputils/conn.php");
 		        $(this).addClass('selected');
 		        $('.tableButtons').addClass('clickable');
 	  		});
-			// function editMake() {
-			// 	var rowcol1 = $('tr.selected td:first-child');
-			// 	var rowcol2 = $('tr.selected td:last-child');
-			// 	if (rowcol1) {
-			// 		//pass the makeid and name as its more efficient, less coupled
-			// 		window.location.href = "makes.php?Action=Edit&Make_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			// 	}
-			// };
-			
-			/*
+			function editClient() {
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "clients.php?Action=Edit&Client_ID=" + rowcol1[0].innerHTML;
+				}
+			};
 			function deleteClient() {
-			 	var rowcol1 = $('tr.selected td:first-child');
-			 	var rowcol2 = $('tr.selected td:last-child');
-			 	if (rowcol1) {
-			 		//pass the clientid and name as its more efficient, less coupled
-			 		//window.location.href = "makes.php?Action=Delete&Client_ID=" + rowcol1[0].innerHTML + "&Make_Name=" + rowcol2[0].innerHTML;
-			 	}
-			 };
-			 */
+				var rowcol1 = $('tr.selected td:first-child');
+				if (rowcol1) {
+					//pass the makeid and name as its more efficient, less coupled
+					window.location.href = "clients.php?Action=Delete&Client_ID=" + rowcol1[0].innerHTML;
+				}
+			};
 		</script>
 
 	</body>

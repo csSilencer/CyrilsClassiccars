@@ -80,7 +80,7 @@ include("phputils/conn.php")
 			// echo "<p>". $conn ."</p>";
 			$query= "SELECT * FROM MAKE";
 			$stmt = oci_parse($conn, $query);
-			if(!oci_execute($stmt)) {
+			if(!@oci_execute($stmt)) {
 				header("error.php?Reason=BackendError");
 			}
 		?>
