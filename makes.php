@@ -101,7 +101,7 @@ include("phputils/conn.php")
                 <form method="post" action="makes.php?Action=EditConfirm">
                 	<h3>Make:</h3><span><?php echo $_GET["Make_Name"]?></span></br>
                 	<h3>ID#:</h3><span><?php echo $_GET["Make_ID"]?></span></br>
-                	<h3>New Make:</h3> <?php echo "<input type='text' name='makename' value='" .$_GET["Make_Name"]. "'>" ?>
+                	<h3>New Make:</h3> <?php echo "<input type='text' name='makename' value='" .$_GET["Make_Name"]. "' required>" ?>
                 	<?php echo "<input style='display:none' type='text' name='makeid' value='" .$_GET["Make_ID"]. "'>" ?>
                 	<div class="submitbuttons">
                 		<input class="btn btn-lg btn-primary" type="submit" value="Submit">
@@ -223,7 +223,7 @@ include("phputils/conn.php")
 		        	{
 		        ?>
 	        	<form method="post" action="makes.php?Action=Add">
-	            <h3>Make Name: </h3><input type="text" name="makename">
+	            <h3>Make Name: </h3><input type="text" name="makename" required>
 	            <div class="submitButtons">
 					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 	            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
@@ -235,7 +235,7 @@ include("phputils/conn.php")
 		                $query="INSERT INTO MAKE (MAKE_ID, MAKE_NAME) VALUES (SEQ_MAKE_ID.nextval,:mname)";
 		                $stmt = oci_parse($conn, $query);
 		                oci_bind_by_name($stmt, ":mname", $mn);
-		                if(oci_execute($stmt)) {
+		                if(@oci_execute($stmt)) {
 		                	header("location: makes.php?Action=AddSuccess");
 		                } else {
 		                	header("location: makes.php?Action=AddFail");

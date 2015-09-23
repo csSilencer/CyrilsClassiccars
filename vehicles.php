@@ -24,15 +24,30 @@ function getMakeByID($id, $conn) {
 	}
 }
 
-function yearsToToday() {//deprecated
-	$start = 1807;
-	$today = date('Y');
-	$ret = array();
-	for($i = $start; $i < $today; $i++) {
-		array_push($ret, $i);
+function getMakeIDByName($name, $conn) {
+	$query = "SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME=".$name;
+	$stmt = oci_parse($conn, $query);
+	if(@oci_execute($stmt)) {
+		return oci_fetch_array($stmt);
+	} else {
+		return "unable to fetch";
 	}
-	return $ret;
 }
+
+function getModelIDByName($name, $conn) {
+	$query = "SELECT MODEL_ID FROM MAKE WHERE MODEL_NAME=".$name;
+	$stmt = oci_parse($conn, $query);
+	if(@oci_execute($stmt)) {
+		return oci_fetch_array($stmt);
+	} else {
+		return "unable to fetch";
+	}
+}
+
+function firstImageFn() {
+	return 'neckbeard.jpg';
+}
+
 
 ?>
 <html>
@@ -136,12 +151,7 @@ function yearsToToday() {//deprecated
 		  					echo "<p>".print_r($_POST)."</p>";
 		  					$query = "SELECT * FROM CAR";
 			  				$stmt = oci_parse($conn, $query);
-		  					break;
-		  				case "SearchAll":
-		  					$query = "SELECT * FROM CAR";
-							$stmt = oci_parse($conn, $query);
-		  					break;
-		  			}
+
 		  	?>
 		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
 			  	<thead>
@@ -181,7 +191,7 @@ function yearsToToday() {//deprecated
 			  			<td><?php echo $row["CAR_YEAR"];?></td>
 			  			<td><?php echo $row["CAR_COLOUR"];?></td>
 			  			<td><!-- Car image thumbnail -->
-			  				<?php echo '<img src="vehicle.png" width="80" height="80">';?>
+			  				<?php echo '<img src="vehicle_images/'.$row["CAR_REG"].'/'.firstImageFn().'" width="80" height="80">';?>
 			  			</td>
 			  		</tr>
 			  	<?php 
@@ -198,7 +208,19 @@ function yearsToToday() {//deprecated
 		  		header("error.php?Reason=BackendError");
 		  	}
 		  	?> 	
-		  	<?php 
+		  	<?php
+		  		break;
+		  		case "AddSuccess":
+            		echo '<h2>Record Added successfully</h2></br>';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+        			break;
+            	case "AddFail":
+            		echo '<h2 class="error">Unable to add record</h2></br>';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+            		break;
+            	} //end switch
+		  	?>
+		  	<?php
 		  	} //end else 
 		  	?>
 		  </div>
@@ -234,7 +256,7 @@ function yearsToToday() {//deprecated
 	            	<?php 
 	            		$query = "SELECT MAKE_NAME FROM MAKE";
 	            		$stmt = oci_parse($conn, $query);
-	            		if(oci_execute($stmt)) {
+	            		if(@oci_execute($stmt)) {
 	            			while($row = oci_fetch_array($stmt)) 
 	            			{
 	            	?>
@@ -267,8 +289,8 @@ function yearsToToday() {//deprecated
 	            	<option value="Sedan">Sedan</option>
 	            	<option value="Wagon">Wagon</option>
 	            	<option value="Ute">Ute</option>
-	            	<option value="SUV/4WD">SUV/4WD</option>
-	            	<option value="Convertible">Convertible</option>
+	            	<option value="SUV/4WD">4WD</option>
+	            	<option value="Convertible">Convert</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
 	            <span>Transmission</span><select name="car_transmission">
@@ -283,9 +305,9 @@ function yearsToToday() {//deprecated
 	            	<option value="Other">Other</option>
 	            </select></br>
 	            <span>Drive Type</span><select name="drive_type">
-	            	<option value="Front wheel drive">Front wheel drive</option>
-	            	<option value="Rear wheel drive">Rear wheel drive</option>
-	            	<option value="Four wheel drive">Four wheel drive</option>
+	            	<option value="Front wheel drive">FWD</option>
+	            	<option value="Rear wheel drive">RWD</option>
+	            	<option value="Four wheel drive">AWD</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
 	            <input type="submit" value="Submit">
@@ -296,25 +318,50 @@ function yearsToToday() {//deprecated
 	     
         <?php
 		} else {
-			// specify a directory name for permanent storage
-			// we're going to leave the filename as it was on client machine
-			$upfile = "vehicle_images/".$_POST["rego_no"]."/".$_FILES["image_1"]["name"];
-			// this does the work
-			//moved the uploaded file from temporary location to permanent storage
-			//location
-			//if this doesn't work an error message is displayed
-			if(!move_uploaded_file($_FILES["image_1"] ["tmp_name"],$upfile))
-			{
-			 echo "ERROR: Could Not Move File into Directory";
-			}
-			//if it does work some information about the file is displayed to the user
-			else
-			{
-			 echo "Temporary File Name: " .$_FILES["image_1"] ["tmp_name"]."<br />";
-			 echo "File Name: " .$_FILES["image_1"]["name"]. "<br />";
-			 echo "File Size: " .$_FILES["image_1"]["size"]. "<br />";
-			 echo "File Type: " .$_FILES["image_1"]["type"]. "<br />"; 
-			}
+			// // specify a directory name for permanent storage
+			// // we're going to leave the filename as it was on client machine
+			// $upfile = "vehicle_images/".$_POST["rego_no"]."/".$_FILES["image_1"]["name"];
+			// // this does the work
+			// //moved the uploaded file from temporary location to permanent storage
+			// //location
+			// //if this doesn't work an error message is displayed
+			// if(!move_uploaded_file($_FILES["image_1"] ["tmp_name"],$upfile))
+			// {
+			//  echo "ERROR: Could Not Move File into Directory";
+			// }
+			// //if it does work some information about the file is displayed to the user
+			// else
+			// {
+			//  echo "Temporary File Name: " .$_FILES["image_1"] ["tmp_name"]."<br />";
+			//  echo "File Name: " .$_FILES["image_1"]["name"]. "<br />";
+			//  echo "File Size: " .$_FILES["image_1"]["size"]. "<br />";
+			//  echo "File Type: " .$_FILES["image_1"]["type"]. "<br />"; 
+			// }
+			$query = "INSERT INTO CAR (CAR_ID, MAKE_ID, MODEL_ID, CAR_REG, CAR_BODYTYPE, CAR_TRANSMISSION, CAR_ODOMETER, CAR_YEAR,";
+			$query = $query . "CAR_COLOUR, CAR_DOORS, CAR_SEATS, CAR_CYLINDERS, CAR_ENGINESIZE, CAR_FUELTYPE, CAR_DRIVETYPE)";
+			$query = $query . "VALUES (SEQ_CAR_ID.nextval, :mkid, :moid, :creg, :cbod, :ctran, :codom, :cyear, :ccolor, :cdoor, :cseat, :ccylin, :cengin, :cfuel, :cdrive)";
+            $stmt = oci_parse($conn,$query);
+            $mkid = getMakeIDByName($_POST["make_name"], $conn);
+            $moid = getModelIDByName($_POST["model_name"], $conn);
+            oci_bind_by_name($stmt, ":mkid", $mkid);
+			oci_bind_by_name($stmt, ":moid", $moid);
+			oci_bind_by_name($stmt, ":creg", $_POST["rego_no"]);
+			oci_bind_by_name($stmt, ":cbod", $_POST["body_type"]);
+			oci_bind_by_name($stmt, ":ctran", $_POST["car_transmission"]);	
+			oci_bind_by_name($stmt, ":codom", $_POST["odometer"]);
+			oci_bind_by_name($stmt, ":cyear", $_POST["year"]);
+			oci_bind_by_name($stmt, ":ccolor", $_POST["colour"]);
+			oci_bind_by_name($stmt, ":cdoor", $_POST["door_no"]);
+			oci_bind_by_name($stmt, ":cseat", $_POST["seat_no"]);
+			oci_bind_by_name($stmt, ":ccylin", $_POST["cylinder_no"]);
+			oci_bind_by_name($stmt, ":cengin", $_POST["engine_size"]);
+			oci_bind_by_name($stmt, ":cfuel", $_POST["fuel_type"]);
+			oci_bind_by_name($stmt, ":cdrive", $_POST["drive_type"]);
+            if(oci_execute($stmt)) {
+            	header("location: vehicles.php?Action=AddSuccess");
+            } else {
+            	header("location: vehicles.php?Action=AddFail");
+            }
 		}
 		?>
 
