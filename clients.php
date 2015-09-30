@@ -373,9 +373,8 @@ function mailingListFn($yn) {
 						$to = $_POST["to"];
 						$msg = $_POST["message"];
 						$subject = $_POST["subject"];
-						if(mail($to, $subject, $msg, $from))
+						if(mail($to, $subject, $msg, $from)) {
 							header("location: clients.php?Action=EmailSuccess");		
-						{
 						} else {
 							header("location: clients.php?Action=EmailFail");
 		                	echo $from.$to.$msg.$subject;
