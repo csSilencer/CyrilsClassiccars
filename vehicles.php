@@ -146,12 +146,16 @@ function firstImageFn() {
 		  	</form>
 		  	<?php 
 		  		} else {
+		  			echo "WTFBBQ";
 		  			switch($_GET["Action"]) {
-		  				case "Search":
-		  					echo "<p>".print_r($_POST)."</p>";
-		  					$query = "SELECT * FROM CAR";
-			  				$stmt = oci_parse($conn, $query);
-
+		  				case "Search" || "SearchAll":
+		  					if($_GET["Action"] == "Search") {
+			  					$query = "SELECT * FROM CAR";
+				  				$stmt = oci_parse($conn, $query);
+		  					} else {
+		  						$query = "SELECT * FROM CAR";
+			  					$stmt = oci_parse($conn, $query);
+		  					}
 		  	?>
 		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
 			  	<thead>
@@ -191,7 +195,7 @@ function firstImageFn() {
 			  			<td><?php echo $row["CAR_YEAR"];?></td>
 			  			<td><?php echo $row["CAR_COLOUR"];?></td>
 			  			<td><!-- Car image thumbnail -->
-			  				<?php echo '<img src="vehicle_images/'.$row["CAR_REG"].'/'.firstImageFn().'" width="80" height="80">';?>
+			  				<?php //echo '<img src="vehicle_images/'.$row["CAR_REG"].'/'.firstImageFn().'" width="80" height="80">';?>
 			  			</td>
 			  		</tr>
 			  	<?php 
