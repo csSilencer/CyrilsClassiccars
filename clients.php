@@ -136,6 +136,16 @@ include("phputils/conn.php");
 		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
 		            	break;
 						
+						case "EmailSuccess":
+							echo '<h2>Email sent</h2><br />';
+							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+						break;
+						
+						case "EmailFail":
+		            		echo '<h2 class="error">Email unsuccessful</h2></br>';
+		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+		            	break;
+						
 						default:
 							header("location: clients.php");	  	
 				  		break;
@@ -256,22 +266,35 @@ include("phputils/conn.php");
 					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
 						echo '<form method="post" name="emailform" action="clients.php?Action=Email"';
-						echo '<p>To: <input type="text" name="to"></p>';
+						$query = "SELECT CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
+						$stmt = oci_parse($conn, $query);
+						oci_execute($stmt);
+						echo '<p>To: ';
+						echo '<select name="to">';
+						while ($names = oci_fetch_array($stmt))
+						{
+							echo '<option value="'.$names["CLIENT_EMAIL"].'">';
+							echo $names["CLIENT_EMAIL"];
+							echo '</option>';
+						}
+						echo '</select>';
+						echo '</p>';
 						echo '<p>Subject: <input type="text" name="subject"></p>';
 						echo '<p>Message: <textarea cols="68" name="message" rows="9"></textarea></p>';
 						echo '<input type="Submit" value="Submit"><br />';
 						echo '<input type="Reset" value="Clear"><br />';
 						echo '</form>';
 					} else {
-						$from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
+						$from = "From: Cyril's Classic Cars <cyril.crook@cyrilsclassiccars.com.au>";
 						$to = $_POST["to"];
 						$msg = $_POST["message"];
 						$subject = $_POST["subject"];
 						if(mail($to, $subject, $msg, $from))
 						{
-							echo "Mail sent";							
+							header("location: clients.php?Action=EmailSuccess");							
 						} else {
-							echo "Error sending mail";
+							header("location: clients.php?Action=EmailFail");
+		                	echo $from.$to.$msg.$subject;
 						}
 					}
 				
@@ -279,41 +302,6 @@ include("phputils/conn.php");
 			</div>
 			
 		</div>		
-		<?php
-		// $conn = oci_connect("s24222232", "monash00", "FIT2076") or die("Couldn't logon.");
-		// $query = "SELECT * FROM CLIENT ORDER BY CLIENT_ID";
-		// $stmt = oci_parse($conn, $query);
-		// oci_execute($stmt);
-		// while ($row = oci_fetch_array($stmt)) {
-		// 	echo '<tr>';
-		// 	echo '<td>' . $row["CLIENT_ID"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_GIVENNAME"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_FAMILYNAME"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_ADDRESS"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_PHONE"] . '</td>';
-		// 	echo '<td>' . $row["CLIENT_MOBILE"] . '</td>';
-		// 	//need email integration
-		// 	echo '<td>' . $row["CLIENT_EMAIL"] . '</td>';
-		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Update">Update</a></td>';
-		// 	echo '<td><a href="clientupdate.php?clientid=' . $row["CLIENT_ID"] . '&Action=Delete">Delete</a></td>';
-		// 	echo '</tr>';
-		// }
-		// echo '</table>';
-		
-		// if (empty($_POST["clientid"]))
-		// {
-			?>
-<!-- 			<form method="post" Action="clients.php">
-				<h2>Insert a new Client</h2>
-				<p>Given Name <input type="text" name="givenname"</p>
-				<p>Surname <input type="text" name="familyname"</p>
-				<p>Address <input type="text" name="address"</p>
-				<p>Phone <input type="text" name="phone"</p>
-				<p>Mobile <input type="text" name="mobile"</p>
-				<p>Email <input type="text" name="email"</p>
-				<input type="Submit" value="Submit">
-				<input type="Reset" value="Clear">
-			</form> -->
 
 		<div class="code">
 			<a href="phputils/displaysource.php?filename=clients.php">
