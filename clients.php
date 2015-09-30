@@ -221,6 +221,16 @@ function mailingListFn($yn) {
 		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
 		            		break;
 						
+						case "EmailSuccess":
+							echo '<h2>Email sent</h2><br />';
+							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+							break;
+						
+						case "EmailFail":
+		            		echo '<h2 class="error">Email unsuccessful</h2></br>';
+		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
+		            		break;
+
 						default:
 							header("location: clients.php");	  	
 				  			break;
@@ -340,22 +350,35 @@ function mailingListFn($yn) {
 					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
 						echo '<form method="post" name="emailform" action="clients.php?Action=Email"';
-						echo '<p>To: <input type="text" name="to"></p>';
+						$query = "SELECT CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
+						$stmt = oci_parse($conn, $query);
+						oci_execute($stmt);
+						echo '<p>To: ';
+						echo '<select name="to">';
+						while ($names = oci_fetch_array($stmt))
+						{
+							echo '<option value="'.$names["CLIENT_EMAIL"].'">';
+							echo $names["CLIENT_EMAIL"];
+							echo '</option>';
+						}
+						echo '</select>';
+						echo '</p>';
 						echo '<p>Subject: <input type="text" name="subject"></p>';
 						echo '<p>Message: <textarea cols="68" name="message" rows="9"></textarea></p>';
 						echo '<input type="Submit" value="Submit"><br />';
 						echo '<input type="Reset" value="Clear"><br />';
 						echo '</form>';
 					} else {
-						$from = "From: Cyril Crook <cyril.crook@monash.edu.au>";
+                        $from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
 						$to = $_POST["to"];
 						$msg = $_POST["message"];
 						$subject = $_POST["subject"];
 						if(mail($to, $subject, $msg, $from))
+							header("location: clients.php?Action=EmailSuccess");		
 						{
-							echo "Mail sent";							
 						} else {
-							echo "Error sending mail";
+							header("location: clients.php?Action=EmailFail");
+		                	echo $from.$to.$msg.$subject;
 						}
 					}
 				
