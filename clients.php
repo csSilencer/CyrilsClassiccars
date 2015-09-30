@@ -263,7 +263,7 @@ include("phputils/conn.php");
 						echo '<input type="Reset" value="Clear"><br />';
 						echo '</form>';
 					} else {
-						$from = "From: Cyril Crook <cyril.crook@monash.edu.au>";
+						$from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
 						$to = $_POST["to"];
 						$msg = $_POST["message"];
 						$subject = $_POST["subject"];
