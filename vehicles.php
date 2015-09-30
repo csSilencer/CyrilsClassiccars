@@ -25,20 +25,20 @@ function getMakeByID($id, $conn) {
 }
 
 function getMakeIDByName($name, $conn) {
-	$query = "SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME=".$name;
+	$query = "SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME='".$name."'";
 	$stmt = oci_parse($conn, $query);
 	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt);
+		return oci_fetch_array($stmt)["MAKE_ID"];
 	} else {
 		return "unable to fetch";
 	}
 }
 
 function getModelIDByName($name, $conn) {
-	$query = "SELECT MODEL_ID FROM MAKE WHERE MODEL_NAME=".$name;
+	$query = "SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME='".$name."'";
 	$stmt = oci_parse($conn, $query);
 	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt);
+		return oci_fetch_array($stmt)["MODEL_ID"];
 	} else {
 		return "unable to fetch";
 	}
@@ -344,21 +344,38 @@ function firstImageFn() {
 			$query = "INSERT INTO CAR (CAR_ID, MAKE_ID, MODEL_ID, CAR_REG, CAR_BODYTYPE, CAR_TRANSMISSION, CAR_ODOMETER, CAR_YEAR,";
 			$query = $query . "CAR_COLOUR, CAR_DOORS, CAR_SEATS, CAR_CYLINDERS, CAR_ENGINESIZE, CAR_FUELTYPE, CAR_DRIVETYPE)";
 			$query = $query . "VALUES (SEQ_CAR_ID.nextval, :mkid, :moid, :creg, :cbod, :ctran, :codom, :cyear, :ccolor, :cdoor, :cseat, :ccylin, :cengin, :cfuel, :cdrive)";
+            // print_r($_POST);
+            // echo sizeof($_POST);
+            // foreach($_POST as $value) {
+            // 	echo $value . " " . gettype($value) . "</br>";
+            // }
+            // echo getMakeIDByName($_POST["make_name"], $conn). "type: ". gettype(getMakeIDByName($_POST["make_name"], $conn));
+            // $mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
+            // $moid = intval(getModelIDByName($_POST["model_name"], $conn));
+            // echo $mkid ."</br>";
+            // echo $moid;
             $stmt = oci_parse($conn,$query);
-            $mkid = getMakeIDByName($_POST["make_name"], $conn);
-            $moid = getModelIDByName($_POST["model_name"], $conn);
+            $mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
+            $moid = intval(getModelIDByName($_POST["model_name"], $conn));
+            $codom = intval($_POST["odometer"]);
+            $cyear = intval($_POST["year"]);
+            $cdoor = intval($_POST["door_no"]);
+            $cseat = intval($_POST["seat_no"]);
+            $ccylin = intval($_POST["cylinder_no"]);
+            $cengin = intval($_POST["engine_size"]);
+
             oci_bind_by_name($stmt, ":mkid", $mkid);
 			oci_bind_by_name($stmt, ":moid", $moid);
 			oci_bind_by_name($stmt, ":creg", $_POST["rego_no"]);
 			oci_bind_by_name($stmt, ":cbod", $_POST["body_type"]);
 			oci_bind_by_name($stmt, ":ctran", $_POST["car_transmission"]);	
-			oci_bind_by_name($stmt, ":codom", $_POST["odometer"]);
-			oci_bind_by_name($stmt, ":cyear", $_POST["year"]);
+			oci_bind_by_name($stmt, ":codom", $codom);
+			oci_bind_by_name($stmt, ":cyear", $cyear);
 			oci_bind_by_name($stmt, ":ccolor", $_POST["colour"]);
-			oci_bind_by_name($stmt, ":cdoor", $_POST["door_no"]);
-			oci_bind_by_name($stmt, ":cseat", $_POST["seat_no"]);
-			oci_bind_by_name($stmt, ":ccylin", $_POST["cylinder_no"]);
-			oci_bind_by_name($stmt, ":cengin", $_POST["engine_size"]);
+			oci_bind_by_name($stmt, ":cdoor", $cdoor);
+			oci_bind_by_name($stmt, ":cseat", $cseat);
+			oci_bind_by_name($stmt, ":ccylin", $ccylin);
+			oci_bind_by_name($stmt, ":cengin", $cengin);
 			oci_bind_by_name($stmt, ":cfuel", $_POST["fuel_type"]);
 			oci_bind_by_name($stmt, ":cdrive", $_POST["drive_type"]);
             if(oci_execute($stmt)) {
