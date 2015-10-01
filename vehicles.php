@@ -240,7 +240,7 @@ function firstImageFn() {
 	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="99" value="10"></br>
 	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
 	            <span>Car image</span>
-	            <a class='addfield' href="javascript:void(0);" onClick="addField();">
+	            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
 	            <div class="imageinput" id="file_1">
@@ -298,6 +298,33 @@ function firstImageFn() {
 	            	<option value="Four wheel drive">AWD</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
+	            <span>Features</span>
+	            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
+	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
+	            </a>
+	            <div class="featureinput">
+					<select name="feature_name_1">
+		            	<option>Select A Feature</option>
+		            	<?php 
+		            		$query = "SELECT FEATURE_NAME FROM FEATURE";
+		            		$stmt = oci_parse($conn, $query);
+		            		if(@oci_execute($stmt)) {
+		            			while($row = oci_fetch_array($stmt)) 
+		            			{
+		            	?>
+		            	<option><?php echo $row["FEATURE_NAME"];?></option>
+		            	<?php 
+		            		}
+		            	} else {
+		            		header("error.php?Reason=BackendError");
+		            	}
+		            	?>
+		            </select>
+		            <a href="javascript:void(0);" onClick="removeFeatureField(this)">
+		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
+		            </a>
+	            </div>
+	            
 	            <div class="submitButtons">
 					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 	            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
@@ -424,11 +451,11 @@ function firstImageFn() {
 		            reader.readAsDataURL(file);
 		        }    
 		    };
-			function addField () {
+			function addImageField () {
 			    var lastfile = $('.imageinput').last();
 			    var countfile = ($('.imageinput').length)+1;
 			    if(lastfile.length == 0) {
-			    	lastfile = $('.addfield');
+			    	lastfile = $('.addimagefield');
 			    }
 
 			    $("<div>", {
@@ -454,9 +481,9 @@ function firstImageFn() {
 			    	"alt": "image"
 			    }).appendTo($('.imageinput').last());
 
-			    $('<a href="javascript:void(0);" onClick="removeField(this);"><img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png"></a>').appendTo($('.imageinput').last());
+			    $('<a href="javascript:void(0);" onClick="removeImageField(this);"><img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png"></a>').appendTo($('.imageinput').last());
 			};
-			function removeField (field) {
+			function removeImageField (field) {
 				field.closest('.imageinput').remove();
 			};
 			function getModels(makename) {
@@ -467,6 +494,31 @@ function firstImageFn() {
        					$(".models").html(result);
 					}
 				});
+			}
+			function addFeatureField () {
+				var lastfeature = $('.featureinput').last();
+				var countfeature = ($('.featureinput').length)+1;
+			    if(lastfeature.length == 0) {
+			    	lastfeature = $('.addfeaturefield');
+			    }
+
+			    featureField = $('.featureinput').first();
+			    if(featureField.length == 0) {
+			    	featureField = $(".addfeaturefield").data();
+			    	$(featureField.outerHTML).insertAfter(lastfeature);
+			    } else {
+		    		featureField.clone().insertAfter(lastfeature);
+			    }
+			    lastfeature = $('.featureinput select').last();
+			    var newName = lastfeature.attr("name");
+			    lastfeature.attr("name", "feature_name_"+countfeature);
+			}
+			function removeFeatureField (field) {
+				var countfeature = ($('.featureinput').length);
+				if(countfeature == 1) {//we need to save the feature field to save the features or not have to load them again
+					$(".addfeaturefield").data(field.closest('.featureinput'));
+				}
+				field.closest('.featureinput').remove();
 			}
     	</script>
 	</body>
