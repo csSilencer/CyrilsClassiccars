@@ -3,14 +3,7 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
-
-function fSelect ($value1, $value2) {
-	$strSelect = "";
-	if($value1 == $value2) {
-		$strSelect = " SELECTED";
-	}
-	return $strSelect;
-}
+include("phputils/helpers.php");
 
 function getMakeByName ($makename, $conn) {
 	$query = "SELECT * FROM MAKE WHERE MAKE_NAME='".$makename."'";

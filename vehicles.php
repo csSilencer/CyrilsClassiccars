@@ -3,57 +3,7 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
-
-function getModelByID($id, $conn) {
-	$query = "SELECT MODEL_NAME FROM CMODEL WHERE MODEL_ID=".$id;
-	$stmt = oci_parse($conn, $query);
-	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt);
-	} else {
-		return "unable to fetch";
-	}
-}
-
-function getMakeByID($id, $conn) {
-	$query = "SELECT MAKE_NAME FROM MAKE WHERE MAKE_ID=".$id;
-	$stmt = oci_parse($conn, $query);
-	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt);
-	} else {
-		return "unable to fetch";
-	}
-}
-
-function getMakeIDByName($name, $conn) {
-	$query = "SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME='".$name."'";
-	$stmt = oci_parse($conn, $query);
-	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt)["MAKE_ID"];
-	} else {
-		return "unable to fetch";
-	}
-}
-
-function getModelIDByName($name, $conn) {
-	$query = "SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME='".$name."'";
-	$stmt = oci_parse($conn, $query);
-	if(@oci_execute($stmt)) {
-		return oci_fetch_array($stmt)["MODEL_ID"];
-	} else {
-		return "unable to fetch";
-	}
-}
-
-function firstImageFn($rego_no) {
-	$directory = 'vehicle_images/'.$rego_no;
-	if (file_exists($directory)) {
-		$scanned_directory = array_diff(scandir($directory), array('..', '.'));
-		return $scanned_directory[2];
-	}
-	return '';
-}
-
-
+include("phputils/helpers.php");
 ?>
 <html>
 	<head>
@@ -200,8 +150,14 @@ function firstImageFn($rego_no) {
 				  			<td><?php echo $row["CAR_YEAR"];?></td>
 				  			<td><?php echo $row["CAR_COLOUR"];?></td>
 				  			<td><!-- Car image thumbnail -->
-				  				<?php 
-				  					$directory = "vehicle_images/".$row["CAR_REG"]."/".firstImageFn($row["CAR_REG"]);
+				  				<?php
+				  					$images = getCarImages($row["CAR_REG"]);
+				  					print_r($images);
+				  					if(sizeof($images) > 0) {
+				  						$directory = "vehicle_images/".$row["CAR_REG"]."/".$images[2];
+				  					} else {
+				  						$directory = '';
+				  					}
 				  					// echo $directory;
 				  					echo '<img src="' . $directory . '" width="80" height="80">';?>
 				  			</td>
@@ -220,39 +176,39 @@ function firstImageFn($rego_no) {
 			  		header("error.php?Reason=BackendError");
 			  	}
 			  	?>
-<!-- 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
-	        	<h3>Registration number:</h3><input type="text" name="rego_no" required></br>
-	            <h3>Year:</h3><?php //echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
-	            <h3>Colour:</h3><input type="text" name="colour" required></br>
-	            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value="10000"></br>
-	            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value="4"></br>
-	            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value="5"></br>
-	            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
-	            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-	            <h3>Car image:</h3>
-
-	        </form> -->
 		  	<?php
 		  		break;
 		  	case "Edit":
-		  		$query = "SELECT c.CAR_ID, cm.MODEL_NAME, m.MAKE_NAME, c.CAR_REG, c.CAR_BODYTYPE, c.CAR_TRANSMISSION, ";
+		  		$query = "SELECT c.CAR_ID, c.MAKE_ID, c.MODEL_ID, cm.MODEL_NAME, m.MAKE_NAME, c.CAR_REG, c.CAR_BODYTYPE, c.CAR_TRANSMISSION, ";
 		  		$query = $query . "c.CAR_ODOMETER, c.CAR_YEAR, c.CAR_COLOUR, c.CAR_DOORS, c.CAR_SEATS, c.CAR_CYLINDERS, ";
 		  		$query = $query . "c.CAR_ENGINESIZE, c.CAR_FUELTYPE, c.CAR_DRIVETYPE FROM CAR c, MAKE m, CMODEL cm ";
 		  		$query = $query . "WHERE c.CAR_ID=".$_GET["Car_ID"]." AND c.MAKE_ID = m.MAKE_ID AND c.MODEL_ID = cm.MODEL_ID";
 		  		$stmt = oci_parse($conn, $query);
 		  		if(@oci_execute($stmt)) {
+		  			$row = oci_fetch_array($stmt);
 		  	?>
-				<h2>Add a new vehicle to the database</h2>
+				<h2>Edit an existing vehicle</h2>
 				<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
-		        	<h3>Registration number:</h3><input type="text" name="rego_no" required></br>
-		            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
-		            <h3>Colour:</h3><input type="text" name="colour" required></br>
-		            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value="10000"></br>
-		            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value="4"></br>
-		            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value="5"></br>
-		            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
-		            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-		            <h3>Car image:</h3>
+		        	<h3>Registration number:</h3><input type="text" name="rego_no" value=<?php echo '"'.$row["CAR_REG"].'"';?> required></br>
+		            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.$row["CAR_YEAR"].'">'?><br>
+		            <h3>Colour:</h3><input type="text" name="colour" value=<?php echo '"'.$row["CAR_COLOUR"].'"';?> required></br>
+		            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value=<?php echo '"'.$row["CAR_ODOMETER"].'"';?>></br>
+		            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value=<?php echo '"'.$row["CAR_DOORS"].'"';?>></br>
+		            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value=<?php echo '"'.$row["CAR_SEATS"].'"';?>></br>
+		            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value=<?php echo '"'.$row["CAR_ENGINESIZE"].'"';?>></br>
+		            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value=<?php echo '"'.$row["CAR_CYLINDERS"].'"';?>></br>
+		            <h3>Existing Images:</h3>
+		            <div class="existingimages">
+	            	<?php 
+	            		foreach(getCarImages($row["CAR_REG"]) as $image) 
+	            		{
+	            	?>
+	            			<input type="checkbox" name=<?php echo '"'.$image.'"';?> value=<?php echo '"'.$image.'"';?>><img src=<?php echo '"vehicle_images/'.$row["CAR_REG"].'/'.$image.'"';?> width="200" height="200"><br>
+	            	<?php 
+	            		} //end for each 
+	            	?>
+	            	</div>
+		            <h3>New images:</h3>
 		            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 		            </a>
@@ -268,52 +224,70 @@ function firstImageFn($rego_no) {
 		            <h3>Make Name</h3><select name="make_name" onChange="getModels(this.value)" required>
 		            	<option value="">None</option>
 		            	<?php 
-		            		$query = "SELECT MAKE_NAME FROM MAKE";
+		            		$query = "SELECT * FROM MAKE";
 		            		$stmt = oci_parse($conn, $query);
 		            		if(@oci_execute($stmt)) {
-		            			while($row = oci_fetch_array($stmt)) 
+		            			while($makes = oci_fetch_array($stmt)) 
 		            			{
+									echo '<option value="'.$makes["MAKE_NAME"].'"' .fSelect($row["MAKE_ID"],$makes["MAKE_ID"]). '>';
+									echo $makes["MAKE_NAME"];
+									echo '</option>';
+								}
 		            	?>
-		            	<option><?php echo $row["MAKE_NAME"];?></option>
 		            	<?php 
-		            		}
 		            	} else {
 		            		header("error.php?Reason=BackendError");
 		            	}
 		            	?>
 		            </select></br>
 		            <h3>Model Name</h3><select class="models" name="model_name" required>
-		            	<option value="">Select A Make</option>
+		            	<option value="">None</option>
+		            	<?php 
+		            		$query = "SELECT * FROM CMODEL WHERE MAKE_ID=".$row["MAKE_ID"];
+		            		$stmt = oci_parse($conn, $query);
+		            		if(@oci_execute($stmt)) {
+		            			while($models = oci_fetch_array($stmt)) 
+		            			{
+									echo '<option value="'.$models["MODEL_NAME"].'"' .fSelect($row["MODEL_ID"],$models["MODEL_ID"]). '>';
+									echo $models["MODEL_NAME"];
+									echo '</option>';
+								}
+		            	?>
+		            	<?php 
+		            	} else {
+		            		header("error.php?Reason=BackendError");
+		            	}
+		            	?>
 		            </select></br>
 		            <h3>Body Type</h3><select name="body_type" required>
 		            	<option value="">None</option>
-		            	<option value="Hatch">Hatch</option>
-		            	<option value="Sedan">Sedan</option>
-		            	<option value="Wagon">Wagon</option>
-		            	<option value="Ute">Ute</option>
-		            	<option value="SUV/4WD">4WD</option>
-		            	<option value="Convertible">Convert</option>
-		            	<option value="Other">Other</option>
+		            	<option value="Hatch" <?php echo fSelect("HATCH", $row["CAR_BODYTYPE"]);?>>Hatch</option>
+		            	<option value="Sedan"<?php echo fSelect("SEDAN", $row["CAR_BODYTYPE"]);?>>Sedan</option>
+		            	<option value="Wagon"<?php echo fSelect("WAGON", $row["CAR_BODYTYPE"]);?>>Wagon</option>
+		            	<option value="Ute"<?php echo fSelect("UTE", $row["CAR_BODYTYPE"]);?>>Ute</option>
+		            	<option value="SUV/4WD"<?php echo fSelect("SUV/4WD", $row["CAR_BODYTYPE"]);?>>4WD</option>
+		            	<option value="Convertible"<?php echo fSelect("CONVERTIBLE", $row["CAR_BODYTYPE"]);?>>Convert</option>
+		            	<option value="Other"<?php echo fSelect("OTHER", $row["CAR_BODYTYPE"]);?>>Other</option>
 		            </select></br>
 		            <h3>Transmission</h3><select name="car_transmission" required>
 		            	<option value="">None</option>
-		            	<option value="Auto">Auto</option>
-		                <option value="Manual">Manual</option>
-		                <option value="Sports">Sports</option>
+		            	<option value="Auto" <?php echo fSelect("AUTO", $row["CAR_TRANSMISSION"]);?>>Auto</option>
+		                <option value="Manual" <?php echo fSelect("MANUAL", $row["CAR_TRANSMISSION"]);?>>Manual</option>
+		                <option value="Sports" <?php echo fSelect("SPORTS", $row["CAR_TRANSMISSION"]);?>>Sports</option>
 		            </select></br>
 		            <h3>Fuel Type</h3><select name="fuel_type" required>
 		            	<option value="">None</option>
-		            	<option value="Petrol">Petrol</option>
-		            	<option value="Diesel">Diesel</option>
-		            	<option value="LPGas">LPGas</option>
-		            	<option value="Other">Other</option>
+		            	<option value="Petrol" <?php echo fSelect("PETROL", $row["CAR_FUELTYPE"]);?>>Petrol</option>
+		            	<option value="Diesel" <?php echo fSelect("DIESEL", $row["CAR_FUELTYPE"]);?>>Diesel</option>
+		            	<option value="LPGas" <?php echo fSelect("LPGAS", $row["CAR_FUELTYPE"]);?>>LPGas</option>
+		            	<option value="Other" <?php echo fSelect("OTHER", $row["CAR_FUELTYPE"]);?>>Other</option>
 		            </select></br>
 		            <h3>Drive Type</h3><select name="drive_type" required>
 		            	<option value="">None</option>
-		            	<option value="Front wheel drive">FWD</option>
-		            	<option value="Rear wheel drive">RWD</option>
-		            	<option value="Four wheel drive">AWD</option>
-		            	<option value="Other">Other</option>
+		            	<option value="Front wheel drive" <?php echo fSelect("FRONT WHEEL DRIVE", $row["CAR_DRIVETYPE"]);?>>FWD</option>
+		            	<option value="Rear wheel drive" <?php echo fSelect("REAR WHEEL DRIVE", $row["CAR_DRIVETYPE"]);?>>RWD</option>
+		            	<option value="Four wheel drive" <?php echo fSelect("FOUR WHEEL DRIVE", $row["CAR_DRIVETYPE"]);?>>AWD</option>
+		            	<option value="Other" <?php echo fSelect("OTHER", $row["CAR_DRIVETYPE"]);?>>Other</option>
 		            </select></br>
 		            <h3>Features</h3>
 		            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
@@ -341,10 +315,11 @@ function firstImageFn($rego_no) {
 			            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
 			            </a>
 		            </div>
-		            
+    	            
 		            <div class="submitButtons">
 						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 		            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
+		            	<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='vehicles.php'">
 		            </div>
 		        </form>
 		    <?php
@@ -468,7 +443,7 @@ function firstImageFn($rego_no) {
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
 		            </a>
 	            </div>
-	            
+
 	            <div class="submitButtons">
 					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 	            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
