@@ -107,9 +107,9 @@ function firstImageFn($rego_no) {
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle"
 					data-toggle="collapse" data-target="#myNavbar">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
+						<h3 class="icon-bar"></h3>
+						<h3 class="icon-bar"></h3>
+						<h3 class="icon-bar"></h3>
 					</button>
 					<a class="navbar-brand" href="#">Cyrils Classic Cars</a>
 				</div>
@@ -151,9 +151,9 @@ function firstImageFn($rego_no) {
 		  	</form>
 		  	<?php 
 		  		} else {
-		  			//echo "WTFBBQ";
 		  			switch($_GET["Action"]) {
-		  				case "Search" || "SearchAll":
+		  				case "Search":
+		  				case "SearchAll":
 		  					if($_GET["Action"] == "Search") {
 			  					$query = "SELECT * FROM CAR WHERE CAR_REG LIKE '%".$_POST["rego_no"]."%' AND MAKE_ID IN (SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME LIKE '%".$_POST["make_name"]."%') AND MODEL_ID IN (SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME LIKE '%".$_POST["model_name"]."%')";
 				  				$stmt = oci_parse($conn, $query);
@@ -162,71 +162,85 @@ function firstImageFn($rego_no) {
 			  					$stmt = oci_parse($conn, $query);
 		  					}
 		 	?>
-		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
-			  	<thead>
-			  		<th>Car ID</th>
-			  		<th>Make</th>
-			  		<th>Model</th>
-			  		<th>Registration</th>
-			  		<th>Body Type</th>
-			  		<th>Transmission</th>
-			  		<th>Year</th>
-			  		<th>Colour</th>
-			  		<th>Thumbnail</th>
-			  	</thead>
-			  	<tfoot>
-			  		<th>Car ID</th>
-			  		<th>Make</th>
-			  		<th>Model</th>
-			  		<th>Registration</th>
-			  		<th>Body Type</th>
-			  		<th>Transmission</th>
-			  		<th>Year</th>
-			  		<th>Colour</th>
-			  		<th>Thumbnail</th>
-			  	</tfoot>
+			  	<table id="vehicles" class="display" cellspacing="0" width="100%">
+				  	<thead>
+				  		<th>Car ID</th>
+				  		<th>Make</th>
+				  		<th>Model</th>
+				  		<th>Registration</th>
+				  		<th>Body Type</th>
+				  		<th>Transmission</th>
+				  		<th>Year</th>
+				  		<th>Colour</th>
+				  		<th>Thumbnail</th>
+				  	</thead>
+				  	<tfoot>
+				  		<th>Car ID</th>
+				  		<th>Make</th>
+				  		<th>Model</th>
+				  		<th>Registration</th>
+				  		<th>Body Type</th>
+				  		<th>Transmission</th>
+				  		<th>Year</th>
+				  		<th>Colour</th>
+				  		<th>Thumbnail</th>
+				  	</tfoot>
+				  	<?php 
+				  		if(@oci_execute($stmt)) {
+				  			while($row = oci_fetch_array($stmt)) 
+				  			{
+				  	?>
+				  		<tr>
+							<td><?php echo $row["CAR_ID"];?></td>
+				  			<td><?php echo getMakeByID($row["MAKE_ID"], $conn)["MAKE_NAME"];?></td>
+				  			<td><?php echo getModelByID($row["MODEL_ID"], $conn)["MODEL_NAME"];?></td>
+				  			<td><?php echo $row["CAR_REG"];?></td>
+				  			<td><?php echo $row["CAR_BODYTYPE"];?></td>
+				  			<td><?php echo $row["CAR_TRANSMISSION"];?></td>
+				  			<td><?php echo $row["CAR_YEAR"];?></td>
+				  			<td><?php echo $row["CAR_COLOUR"];?></td>
+				  			<td><!-- Car image thumbnail -->
+				  				<?php 
+				  					$directory = "vehicle_images/".$row["CAR_REG"]."/".firstImageFn($row["CAR_REG"]);
+				  					// echo $directory;
+				  					echo '<img src="' . $directory . '" width="80" height="80">';?>
+				  			</td>
+				  		</tr>
+				  	<?php 
+				  	} //end while
+				  	?>
+			  	</table>
+				<div class="tablebuttons">
+					<button class="edit btn btn-lg btn-primary" onClick="editVehicle();">Edit</button>
+					<button class="delete btn btn-lg btn-danger" onClick="deleteVehicle();">Delete</button>
+				</div>
+				<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
 			  	<?php 
-			  		if(@oci_execute($stmt)) {
-			  			while($row = oci_fetch_array($stmt)) 
-			  			{
+			  	} else {//end if
+			  		header("error.php?Reason=BackendError");
+			  	}
 			  	?>
-			  		<tr>
-						<td><?php echo $row["CAR_ID"];?></td>
-			  			<td><?php echo getMakeByID($row["MAKE_ID"], $conn)["MAKE_NAME"];?></td>
-			  			<td><?php echo getModelByID($row["MODEL_ID"], $conn)["MODEL_NAME"];?></td>
-			  			<td><?php echo $row["CAR_REG"];?></td>
-			  			<td><?php echo $row["CAR_BODYTYPE"];?></td>
-			  			<td><?php echo $row["CAR_TRANSMISSION"];?></td>
-			  			<td><?php echo $row["CAR_YEAR"];?></td>
-			  			<td><?php echo $row["CAR_COLOUR"];?></td>
-			  			<td><!-- Car image thumbnail -->
-			  				<?php 
-			  					$directory = "vehicle_images/".$row["CAR_REG"]."/".firstImageFn($row["CAR_REG"]);
-			  					// echo $directory;
-			  					echo '<img src="' . $directory . '" width="80" height="80">';?>
-			  			</td>
-			  		</tr>
-			  	<?php 
-			  	} //end while
-			  	?>
-		  	</table>
-			<div class="tablebuttons">
-				<button class="edit btn btn-lg btn-primary" onClick="editVehicle();">Edit</button>
-				<button class="delete btn btn-lg btn-danger" onClick="deleteVehicle();">Delete</button>
-			</div>
-			<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
-		  	<?php 
-		  	} else {//end if
-		  		header("error.php?Reason=BackendError");
-		  	}
+<!-- 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
+	        	<h3>Registration number:</h3><input type="text" name="rego_no" required></br>
+	            <h3>Year:</h3><?php //echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
+	            <h3>Colour:</h3><input type="text" name="colour" required></br>
+	            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value="10000"></br>
+	            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value="4"></br>
+	            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value="5"></br>
+	            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
+	            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
+	            <h3>Car image:</h3>
+
+	        </form> -->
+		  	<?php
 		  		break;
 		  	case "AddSuccess":
             		echo '<h2>Record Added successfully</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
         		break;
           	case "AddFail":
             		echo '<h2 class="error">Unable to add record</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
            		break;
             	} //end switch
 		  	} //end else 
@@ -239,15 +253,15 @@ function firstImageFn($rego_no) {
 		  	?>
 		  	<h2>Add a new vehicle to the database</h2>
 			<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=Add">
-	        	<span>Registration number</span><input type="text" name="rego_no" required></br>
-	            <span>Year</span><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
-	            <span>Colour</span><input type="text" name="colour" required></br>
-	            <span>Odometer</span><input type="number" name="odometer" min="1" value="10000"></br>
-	            <span>Doors</span><input type="number" name="door_no" min="1" max="6" value="4"></br>
-	            <span>Seats</span><input type="number" name="seat_no" min="1" max="15" value="5"></br>
-	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="99" value="10"></br>
-	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
-	            <span>Car image</span>
+	        	<h3>Registration number:</h3><input type="text" name="rego_no" required></br>
+	            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
+	            <h3>Colour:</h3><input type="text" name="colour" required></br>
+	            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value="10000"></br>
+	            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value="4"></br>
+	            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value="5"></br>
+	            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
+	            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
+	            <h3>Car image:</h3>
 	            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
@@ -260,7 +274,7 @@ function firstImageFn($rego_no) {
 	            </div>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
-	            <span>Make Name</span><select name="make_name" onChange="getModels(this.value)" required>
+	            <h3>Make Name</h3><select name="make_name" onChange="getModels(this.value)" required>
 	            	<option value="">None</option>
 	            	<?php 
 	            		$query = "SELECT MAKE_NAME FROM MAKE";
@@ -277,10 +291,10 @@ function firstImageFn($rego_no) {
 	            	}
 	            	?>
 	            </select></br>
-	            <span>Model Name</span><select class="models" name="model_name" required>
+	            <h3>Model Name</h3><select class="models" name="model_name" required>
 	            	<option value="">Select A Make</option>
 	            </select></br>
-	            <span>Body Type</span><select name="body_type" required>
+	            <h3>Body Type</h3><select name="body_type" required>
 	            	<option value="">None</option>
 	            	<option value="Hatch">Hatch</option>
 	            	<option value="Sedan">Sedan</option>
@@ -290,27 +304,27 @@ function firstImageFn($rego_no) {
 	            	<option value="Convertible">Convert</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Transmission</span><select name="car_transmission" required>
+	            <h3>Transmission</h3><select name="car_transmission" required>
 	            	<option value="">None</option>
 	            	<option value="Auto">Auto</option>
 	                <option value="Manual">Manual</option>
 	                <option value="Sports">Sports</option>
 	            </select></br>
-	            <span>Fuel Type</span><select name="fuel_type" required>
+	            <h3>Fuel Type</h3><select name="fuel_type" required>
 	            	<option value="">None</option>
 	            	<option value="Petrol">Petrol</option>
 	            	<option value="Diesel">Diesel</option>
 	            	<option value="LPGas">LPGas</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Drive Type</span><select name="drive_type" required>
+	            <h3>Drive Type</h3><select name="drive_type" required>
 	            	<option value="">None</option>
 	            	<option value="Front wheel drive">FWD</option>
 	            	<option value="Rear wheel drive">RWD</option>
 	            	<option value="Four wheel drive">AWD</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Features</span>
+	            <h3>Features</h3>
 	            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
