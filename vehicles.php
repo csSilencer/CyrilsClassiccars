@@ -234,6 +234,20 @@ function firstImageFn($rego_no) {
 	        </form> -->
 		  	<?php
 		  		break;
+		  	case "Edit":
+		  		$query = "SELECT c.CAR_ID, cm.MODEL_NAME, m.MAKE_NAME, c.CAR_REG, c.CAR_BODYTYPE, c.CAR_TRANSMISSION, ";
+		  		$query = $query . "c.CAR_ODOMETER, c.CAR_YEAR, c.CAR_COLOUR, c.CAR_DOORS, c.CAR_SEATS, c.CAR_CYLINDERS, ";
+		  		$query = $query . "c.CAR_ENGINESIZE, c.CAR_FUELTYPE, c.CAR_DRIVETYPE FROM CAR c, MAKE m, CMODEL cm ";
+		  		$query = $query . "WHERE c.CAR_ID=".$_GET["Car_ID"]." AND c.MAKE_ID = m.MAKE_ID AND c.MODEL_ID = cm.MODEL_ID";
+		  		$stmt = oci_parse($conn, $query);
+		  		if(oci_execute($stmt)) {
+		  			print_r(oci_fetch_array($stmt));
+		  	?>
+		    <?php
+		    } else {
+		    	header("error.php?Reason=BackendError");
+		    }//end oci exec
+		    	break;
 		  	case "AddSuccess":
             		echo '<h2>Record Added successfully</h2></br>';
             		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
