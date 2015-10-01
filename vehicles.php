@@ -146,17 +146,17 @@ function firstImageFn() {
 		  	</form>
 		  	<?php 
 		  		} else {
-		  			echo "WTFBBQ";
+		  			//echo "WTFBBQ";
 		  			switch($_GET["Action"]) {
 		  				case "Search" || "SearchAll":
 		  					if($_GET["Action"] == "Search") {
-			  					$query = "SELECT * FROM CAR";
+			  					$query = "SELECT * FROM CAR WHERE CAR_REG LIKE '%".$_POST["rego_no"]."%' AND MAKE_ID IN (SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME LIKE '%".$_POST["make_name"]."%') AND MODEL_ID IN (SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME LIKE '%".$_POST["model_name"]."%')";
 				  				$stmt = oci_parse($conn, $query);
 		  					} else {
 		  						$query = "SELECT * FROM CAR";
 			  					$stmt = oci_parse($conn, $query);
 		  					}
-		  	?>
+		 	?>
 		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
 			  	<thead>
 			  		<th>Car ID</th>
@@ -181,7 +181,7 @@ function firstImageFn() {
 			  		<th>Thumbnail</th>
 			  	</tfoot>
 			  	<?php 
-			  		if(oci_execute($stmt)) {
+			  		if(@oci_execute($stmt)) {
 			  			while($row = oci_fetch_array($stmt)) 
 			  			{
 			  	?>
@@ -205,26 +205,22 @@ function firstImageFn() {
 			<div class="tablebuttons">
 				<button class="edit btn btn-lg btn-primary" onClick="editVehicle();">Edit</button>
 				<button class="delete btn btn-lg btn-danger" onClick="deleteVehicle();">Delete</button>
-				<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
 			</div>
+			<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
 		  	<?php 
 		  	} else {//end if
 		  		header("error.php?Reason=BackendError");
 		  	}
-		  	?> 	
-		  	<?php
 		  		break;
-		  		case "AddSuccess":
+		  	case "AddSuccess":
             		echo '<h2>Record Added successfully</h2></br>';
             		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
-        			break;
-            	case "AddFail":
+        		break;
+          	case "AddFail":
             		echo '<h2 class="error">Unable to add record</h2></br>';
             		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="makes.php">';
-            		break;
+           		break;
             	} //end switch
-		  	?>
-		  	<?php
 		  	} //end else 
 		  	?>
 		  </div>
