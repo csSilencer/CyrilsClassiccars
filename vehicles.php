@@ -246,14 +246,14 @@ function firstImageFn() {
 	            <div class="imageinput" id="file_1">
 	            	<input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
 					<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
-		            <a href="javascript:void(0);" onClick="removeField(this)">
+		            <a href="javascript:void(0);" onClick="removeImageField(this)">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
 		            </a>
 	            </div>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
 	            <span>Make Name</span><select name="make_name" onChange="getModels(this.value)" required>
-	            	<option>Select A Make</option>
+	            	<option value="">None</option>
 	            	<?php 
 	            		$query = "SELECT MAKE_NAME FROM MAKE";
 	            		$stmt = oci_parse($conn, $query);
@@ -269,10 +269,11 @@ function firstImageFn() {
 	            	}
 	            	?>
 	            </select></br>
-	            <span>Model Name</span><select class="models" name="model_name">
-	            	<option>Select A Make</option>
+	            <span>Model Name</span><select class="models" name="model_name" required>
+	            	<option value="">Select A Make</option>
 	            </select></br>
 	            <span>Body Type</span><select name="body_type" required>
+	            	<option value="">None</option>
 	            	<option value="Hatch">Hatch</option>
 	            	<option value="Sedan">Sedan</option>
 	            	<option value="Wagon">Wagon</option>
@@ -282,17 +283,20 @@ function firstImageFn() {
 	            	<option value="Other">Other</option>
 	            </select></br>
 	            <span>Transmission</span><select name="car_transmission" required>
+	            	<option value="">None</option>
 	            	<option value="Auto">Auto</option>
 	                <option value="Manual">Manual</option>
 	                <option value="Sports">Sports</option>
 	            </select></br>
 	            <span>Fuel Type</span><select name="fuel_type" required>
+	            	<option value="">None</option>
 	            	<option value="Petrol">Petrol</option>
 	            	<option value="Diesel">Diesel</option>
 	            	<option value="LPGas">LPGas</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
 	            <span>Drive Type</span><select name="drive_type" required>
+	            	<option value="">None</option>
 	            	<option value="Front wheel drive">FWD</option>
 	            	<option value="Rear wheel drive">RWD</option>
 	            	<option value="Four wheel drive">AWD</option>
@@ -370,27 +374,33 @@ function firstImageFn() {
             $stmt = oci_parse($conn,$query);
             $mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
             $moid = intval(getModelIDByName($_POST["model_name"], $conn));
+            $creg = strtoupper($_POST["rego_no"]);
+            $cbod = strtoupper($_POST["body_type"]);
             $codom = intval($_POST["odometer"]);
+            $ctran = strtoupper($_POST["car_transmission"]);
             $cyear = intval($_POST["year"]);
+            $ccolor = strtoupper($_POST["colour"]);
             $cdoor = intval($_POST["door_no"]);
             $cseat = intval($_POST["seat_no"]);
             $ccylin = intval($_POST["cylinder_no"]);
             $cengin = intval($_POST["engine_size"]);
+            $cfuel = strtoupper($_POST["fuel_type"]);
+            $cdrive = strtoupper($_POST["drive_type"]);
 
             oci_bind_by_name($stmt, ":mkid", $mkid);
 			oci_bind_by_name($stmt, ":moid", $moid);
-			oci_bind_by_name($stmt, ":creg", $_POST["rego_no"]);
-			oci_bind_by_name($stmt, ":cbod", $_POST["body_type"]);
-			oci_bind_by_name($stmt, ":ctran", $_POST["car_transmission"]);	
+			oci_bind_by_name($stmt, ":creg", $creg);
+			oci_bind_by_name($stmt, ":cbod", $cbod);
+			oci_bind_by_name($stmt, ":ctran", $ctran);	
 			oci_bind_by_name($stmt, ":codom", $codom);
 			oci_bind_by_name($stmt, ":cyear", $cyear);
-			oci_bind_by_name($stmt, ":ccolor", $_POST["colour"]);
+			oci_bind_by_name($stmt, ":ccolor", $ccolor);
 			oci_bind_by_name($stmt, ":cdoor", $cdoor);
 			oci_bind_by_name($stmt, ":cseat", $cseat);
 			oci_bind_by_name($stmt, ":ccylin", $ccylin);
 			oci_bind_by_name($stmt, ":cengin", $cengin);
-			oci_bind_by_name($stmt, ":cfuel", $_POST["fuel_type"]);
-			oci_bind_by_name($stmt, ":cdrive", $_POST["drive_type"]);
+			oci_bind_by_name($stmt, ":cfuel", $cfuel);
+			oci_bind_by_name($stmt, ":cdrive", $cdrive);
             if(oci_execute($stmt)) {
             	header("location: vehicles.php?Action=AddSuccess");
             } else {

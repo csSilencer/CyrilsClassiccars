@@ -139,12 +139,12 @@ function mailingListFn($yn) {
 		            case "EditConfirm":
 	            		$query = "UPDATE CLIENT SET CLIENT_GIVENNAME=:gn, CLIENT_FAMILYNAME=:fn, CLIENT_ADDRESS=:addy, CLIENT_PHONE=:ph, CLIENT_MOBILE=:mob, CLIENT_EMAIL=:em, CLIENT_MAILINGLIST=:mlst WHERE CLIENT_ID=".$_POST["clientid"];
 		                $stmt = oci_parse($conn, $query);
-						$gn = $_POST["givenname"];
-						$fn = $_POST["familyname"];
-						$addy = $_POST["address"];
+						$gn = strtoupper($_POST["givenname"]);
+						$fn = strtoupper($_POST["familyname"]);
+						$addy = strtoupper($_POST["address"]);
 						$ph = $_POST["phone"];
 						$mob = $_POST["mobile"];
-						$em = $_POST["email"];
+						$em = strtoupper($_POST["email"]);
 						$mlst = $_POST["mailinglist"];
 		                $stmt = oci_parse($conn,$query);
 						oci_bind_by_name($stmt, ":gn", $gn);
@@ -375,12 +375,12 @@ function mailingListFn($yn) {
 		                $query = "INSERT INTO CLIENT (CLIENT_ID, CLIENT_GIVENNAME, CLIENT_FAMILYNAME, CLIENT_ADDRESS, CLIENT_PHONE, CLIENT_MOBILE, CLIENT_EMAIL, CLIENT_MAILINGLIST) VALUES(SEQ_CLIENT_ID.NEXTVAL, :gn, :fn, :addy, :ph, :mob, :em, :ml)";
 		                //$query = "INSERT INTO CLIENT VALUES (SEQ_CLIENT_ID.NEXTVAL, " . $test . ", 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'Y')";
 						$stmt = oci_parse($conn, $query);
-						$gn = $_POST["givenname"];
-						$fn = $_POST["familyname"];
-						$addy = $_POST["address"];
+						$gn = strtoupper($_POST["givenname"]);
+						$fn = strtoupper($_POST["familyname"]);
+						$addy = strtoupper($_POST["address"]);
 						$ph = $_POST["phone"];
 						$mob = $_POST["mobile"];
-						$em = $_POST["email"];
+						$em = strtoupper($_POST["email"]);
 						$ml = $_POST["mailinglist"];
 					
 						oci_bind_by_name($stmt, ":gn", $gn);

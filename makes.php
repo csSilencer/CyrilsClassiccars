@@ -114,7 +114,8 @@ include("phputils/conn.php");
                 ?>
                 <?php 
                 	case "EditConfirm":
-                		$query = "UPDATE MAKE set MAKE_NAME='".$_POST["makename"]."' WHERE MAKE_ID='".$_POST["makeid"]."'";
+                		$mn = strtoupper($_POST["makename"]);
+                		$query = "UPDATE MAKE set MAKE_NAME='".$mn."' WHERE MAKE_ID='".$_POST["makeid"]."'";
 		                $stmt = oci_parse($conn,$query);
 		                if (@oci_execute($stmt)) {
 		                    echo "<h2>The following make record has been successfully updated</h2></br>";
@@ -231,7 +232,7 @@ include("phputils/conn.php");
 	            
 		        <?php 
 		    		} else {
-		                $mn = $_POST["makename"];
+		                $mn = strtoupper($_POST["makename"]);
 		                $query="INSERT INTO MAKE (MAKE_ID, MAKE_NAME) VALUES (SEQ_MAKE_ID.nextval,:mname)";
 		                $stmt = oci_parse($conn, $query);
 		                oci_bind_by_name($stmt, ":mname", $mn);
