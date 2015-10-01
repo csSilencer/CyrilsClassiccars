@@ -365,8 +365,12 @@ function mailingListFn($yn) {
 						echo '</p>';
 						echo '<p>Subject: <input type="text" name="subject"></p>';
 						echo '<p>Message: <textarea cols="68" name="message" rows="9"></textarea></p>';
-						echo '<input type="Submit" value="Submit"><br />';
-						echo '<input type="Reset" value="Clear"><br />';
+						?>
+						<div class="submitButtons">
+							<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+		            		<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+		            	</div>
+		            	<?php
 						echo '</form>';
 					} else {
                         $from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
