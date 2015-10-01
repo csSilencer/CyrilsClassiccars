@@ -44,8 +44,13 @@ function getModelIDByName($name, $conn) {
 	}
 }
 
-function firstImageFn() {
-	return 'neckbeard.jpg';
+function firstImageFn($rego_no) {
+	$directory = 'vehicle_images/'.$rego_no;
+	if (file_exists($directory)) {
+		$scanned_directory = array_diff(scandir($directory), array('..', '.'));
+		return $scanned_directory[2];
+	}
+	return '';
 }
 
 
@@ -195,7 +200,10 @@ function firstImageFn() {
 			  			<td><?php echo $row["CAR_YEAR"];?></td>
 			  			<td><?php echo $row["CAR_COLOUR"];?></td>
 			  			<td><!-- Car image thumbnail -->
-			  				<?php //echo '<img src="vehicle_images/'.$row["CAR_REG"].'/'.firstImageFn().'" width="80" height="80">';?>
+			  				<?php 
+			  					$directory = "vehicle_images/".$row["CAR_REG"]."/".firstImageFn($row["CAR_REG"]);
+			  					// echo $directory;
+			  					echo '<img src="' . $directory . '" width="80" height="80">';?>
 			  			</td>
 			  		</tr>
 			  	<?php 
@@ -339,25 +347,8 @@ function firstImageFn() {
 	     
         <?php
 		} else {
-			// // specify a directory name for permanent storage
-			// // we're going to leave the filename as it was on client machine
-			// $upfile = "vehicle_images/".$_POST["rego_no"]."/".$_FILES["image_1"]["name"];
-			// // this does the work
-			// //moved the uploaded file from temporary location to permanent storage
-			// //location
-			// //if this doesn't work an error message is displayed
-			// if(!move_uploaded_file($_FILES["image_1"] ["tmp_name"],$upfile))
-			// {
-			//  echo "ERROR: Could Not Move File into Directory";
-			// }
-			// //if it does work some information about the file is displayed to the user
-			// else
-			// {
-			//  echo "Temporary File Name: " .$_FILES["image_1"] ["tmp_name"]."<br />";
-			//  echo "File Name: " .$_FILES["image_1"]["name"]. "<br />";
-			//  echo "File Size: " .$_FILES["image_1"]["size"]. "<br />";
-			//  echo "File Type: " .$_FILES["image_1"]["type"]. "<br />"; 
-			// }
+
+			
 			$query = "INSERT INTO CAR (CAR_ID, MAKE_ID, MODEL_ID, CAR_REG, CAR_BODYTYPE, CAR_TRANSMISSION, CAR_ODOMETER, CAR_YEAR,";
 			$query = $query . "CAR_COLOUR, CAR_DOORS, CAR_SEATS, CAR_CYLINDERS, CAR_ENGINESIZE, CAR_FUELTYPE, CAR_DRIVETYPE)";
 			$query = $query . "VALUES (SEQ_CAR_ID.nextval, :mkid, :moid, :creg, :cbod, :ctran, :codom, :cyear, :ccolor, :cdoor, :cseat, :ccylin, :cengin, :cfuel, :cdrive)";
@@ -386,6 +377,24 @@ function firstImageFn() {
             $cengin = intval($_POST["engine_size"]);
             $cfuel = strtoupper($_POST["fuel_type"]);
             $cdrive = strtoupper($_POST["drive_type"]);
+
+
+			if (!file_exists('vehicle_images/'.$creg)) {
+			    mkdir('vehicle_images/'.$creg, 0777, true);
+			}
+
+			foreach($_FILES as $image) {
+				// specify a directory name for permanent storage
+				// we're going to leave the filename as it was on client machine
+				$upfile = "vehicle_images/".$creg."/".$image["name"];
+				// this does the work
+				//moved the uploaded file from temporary location to permanent storage
+				//location
+				//if this doesn't work an error message is displayed
+				if(!move_uploaded_file($image["tmp_name"],$upfile)) {
+					header("location: vehicles.php?Action=AddFail");
+				}
+			}
 
             oci_bind_by_name($stmt, ":mkid", $mkid);
 			oci_bind_by_name($stmt, ":moid", $moid);
