@@ -156,9 +156,7 @@ function firstImageFn() {
 		  						$query = "SELECT * FROM CAR";
 			  					$stmt = oci_parse($conn, $query);
 		  					}
-							//$query = "SELECT * FROM CAR WHERE CAR_REG LIKE'".$_POST["rego_no"]."%'";
-							//$query = "SELECT * FROM CAR WHERE MODEL_ID=(SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME LIKE '".$_POST["model_name"]."%')";
-		  	?>
+		 	?>
 		  	<table id="vehicles" class="display" cellspacing="0" width="100%">
 			  	<thead>
 			  		<th>Car ID</th>
@@ -207,8 +205,8 @@ function firstImageFn() {
 			<div class="tablebuttons">
 				<button class="edit btn btn-lg btn-primary" onClick="editVehicle();">Edit</button>
 				<button class="delete btn btn-lg btn-danger" onClick="deleteVehicle();">Delete</button>
-				<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
 			</div>
+			<button class="delete btn btn-lg btn-danger" onClick="window.location.href='vehicles.php'">Back</button>
 		  	<?php 
 		  	} else {//end if
 		  		header("error.php?Reason=BackendError");
