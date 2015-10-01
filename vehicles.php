@@ -152,7 +152,6 @@ include("phputils/helpers.php");
 				  			<td><!-- Car image thumbnail -->
 				  				<?php
 				  					$images = getCarImages($row["CAR_REG"]);
-				  					print_r($images);
 				  					if(sizeof($images) > 0) {
 				  						$directory = "vehicle_images/".$row["CAR_REG"]."/".$images[2];
 				  					} else {
@@ -189,6 +188,8 @@ include("phputils/helpers.php");
 		  	?>
 				<h2>Edit an existing vehicle</h2>
 				<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
+					<?php echo "<input style='display: none' name='carid' value='".$_GET["Car_ID"]."'></input>";?>
+					<?php echo "<input style='display: none' name='carreg' value='".$row["CAR_REG"]."'></input>";?>
 		        	<h3>Registration number:</h3><input type="text" name="rego_no" value=<?php echo '"'.$row["CAR_REG"].'"';?> required></br>
 		            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.$row["CAR_YEAR"].'">'?><br>
 		            <h3>Colour:</h3><input type="text" name="colour" value=<?php echo '"'.$row["CAR_COLOUR"].'"';?> required></br>
@@ -197,7 +198,8 @@ include("phputils/helpers.php");
 		            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value=<?php echo '"'.$row["CAR_SEATS"].'"';?>></br>
 		            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value=<?php echo '"'.$row["CAR_ENGINESIZE"].'"';?>></br>
 		            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value=<?php echo '"'.$row["CAR_CYLINDERS"].'"';?>></br>
-		            <h3>Existing Images:</h3>
+		            <h3>Existing Images:</h3><br>
+		            <span style="color:red; padding-left:15px;">Tick to remove</span>
 		            <div class="existingimages">
 	            	<?php 
 	            		foreach(getCarImages($row["CAR_REG"]) as $image) 
@@ -221,7 +223,7 @@ include("phputils/helpers.php");
 		            </div>
 
 		            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
-		            <h3>Make Name</h3><select name="make_name" onChange="getModels(this.value)" required>
+		            <h3>Make Name:</h3><select name="make_name" onChange="getModels(this.value)" required>
 		            	<option value="">None</option>
 		            	<?php 
 		            		$query = "SELECT * FROM MAKE";
@@ -240,7 +242,7 @@ include("phputils/helpers.php");
 		            	}
 		            	?>
 		            </select></br>
-		            <h3>Model Name</h3><select class="models" name="model_name" required>
+		            <h3>Model Name:</h3><select class="models" name="model_name" required>
 		            	<option value="">None</option>
 		            	<?php 
 		            		$query = "SELECT * FROM CMODEL WHERE MAKE_ID=".$row["MAKE_ID"];
@@ -259,7 +261,7 @@ include("phputils/helpers.php");
 		            	}
 		            	?>
 		            </select></br>
-		            <h3>Body Type</h3><select name="body_type" required>
+		            <h3>Body Type:</h3><select name="body_type" required>
 		            	<option value="">None</option>
 		            	<option value="Hatch" <?php echo fSelect("HATCH", $row["CAR_BODYTYPE"]);?>>Hatch</option>
 		            	<option value="Sedan"<?php echo fSelect("SEDAN", $row["CAR_BODYTYPE"]);?>>Sedan</option>
@@ -327,6 +329,38 @@ include("phputils/helpers.php");
 		    	header("error.php?Reason=BackendError");
 		    }//end oci exec
 		    	break;
+		    case "EditConfirm":
+		    	$query = "UPDATE CAR SET CAR_REG=:creg CAR_YEAR=:cyear, CAR_DRIVETYPE=:cdrive, CAR_BODYTYPE=:cbody, CAR_COLOUR=:ccolor, CAR_TRANSMISSION=:ctran,"; 
+		    	$query = " CAR_FUELTYPE=:cfuel, CAR_SEATS=:cseat, CAR_DOORS=:cdoor, CAR_ENGINESIZE=:cengin, CAR_CYLINDERS=:ccylin WHERE CAR_ID=".$_POST["carid"];
+		    	$stmt1 = oci_parse($conn, $query);
+		    	foreach(getCarImages($_POST["carreg"]) as $image) {
+		    		//php replaces name such as img.png with img_png
+		    		//we have to work around this
+		    		$postimg = str_split($image, strlen($image)-4); //subtract standard windows extension length
+		    		// print_r($postimg);
+		    		$postimg = $postimg[0] . '_' . explode(".", $postimg[1], 2)[1];
+		    		// echo $postimg;
+		    		if(isset($_POST[$postimg])) {
+		    			removeImage($_POST["carreg"], $image);
+		    		} else {
+		    			//do nothing
+		    		}
+		    	}
+				foreach($_FILES as $image) {
+					// specify a directory name for permanent storage
+					// we're going to leave the filename as it was on client machine
+					$upfile = "vehicle_images/".$_POST["carreg"]."/".$image["name"];
+					// this does the work
+					//moved the uploaded file from temporary location to permanent storage
+					//location
+					//if this doesn't work an error message is displayed
+					if(!move_uploaded_file($image["tmp_name"],$upfile)) {
+						header("location: vehicles.php?Action=AddFail");
+					}
+				}
+
+				break;
+
 		  	case "AddSuccess":
             		echo '<h2>Record Added successfully</h2></br>';
             		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
@@ -557,7 +591,6 @@ include("phputils/helpers.php");
 			};
 
 	  		function showMyImage (fileInput) {
-	  			console.log(fileInput);
 		        var files = fileInput.files;
 		        for (var i = 0; i < files.length; i++) {           
 		            var file = files[i];

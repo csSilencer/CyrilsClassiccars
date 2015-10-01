@@ -50,4 +50,13 @@
 		}
 		return Array();
 	}
+	function removeImage($rego_no, $image) {
+		$file = 'vehicle_images/'.$rego_no.'/'.$image;
+		if (file_exists($file)) {
+			unlink($file);
+			echo "removed file";
+		} else {
+			//do nothing;
+		}
+	}
 ?>
