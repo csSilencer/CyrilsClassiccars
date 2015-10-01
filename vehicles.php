@@ -240,9 +240,113 @@ function firstImageFn($rego_no) {
 		  		$query = $query . "c.CAR_ENGINESIZE, c.CAR_FUELTYPE, c.CAR_DRIVETYPE FROM CAR c, MAKE m, CMODEL cm ";
 		  		$query = $query . "WHERE c.CAR_ID=".$_GET["Car_ID"]." AND c.MAKE_ID = m.MAKE_ID AND c.MODEL_ID = cm.MODEL_ID";
 		  		$stmt = oci_parse($conn, $query);
-		  		if(oci_execute($stmt)) {
-		  			print_r(oci_fetch_array($stmt));
+		  		if(@oci_execute($stmt)) {
 		  	?>
+				<h2>Add a new vehicle to the database</h2>
+				<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
+		        	<h3>Registration number:</h3><input type="text" name="rego_no" required></br>
+		            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.date('Y').'">'?><br>
+		            <h3>Colour:</h3><input type="text" name="colour" required></br>
+		            <h3>Odometer:</h3><input type="number" name="odometer" min="1" value="10000"></br>
+		            <h3>Doors:</h3><input type="number" name="door_no" min="1" max="6" value="4"></br>
+		            <h3>Seats:</h3><input type="number" name="seat_no" min="1" max="15" value="5"></br>
+		            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
+		            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
+		            <h3>Car image:</h3>
+		            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
+		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
+		            </a>
+		            <div class="imageinput" id="file_1">
+		            	<input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
+						<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
+			            <a href="javascript:void(0);" onClick="removeImageField(this)">
+			            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
+			            </a>
+		            </div>
+
+		            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
+		            <h3>Make Name</h3><select name="make_name" onChange="getModels(this.value)" required>
+		            	<option value="">None</option>
+		            	<?php 
+		            		$query = "SELECT MAKE_NAME FROM MAKE";
+		            		$stmt = oci_parse($conn, $query);
+		            		if(@oci_execute($stmt)) {
+		            			while($row = oci_fetch_array($stmt)) 
+		            			{
+		            	?>
+		            	<option><?php echo $row["MAKE_NAME"];?></option>
+		            	<?php 
+		            		}
+		            	} else {
+		            		header("error.php?Reason=BackendError");
+		            	}
+		            	?>
+		            </select></br>
+		            <h3>Model Name</h3><select class="models" name="model_name" required>
+		            	<option value="">Select A Make</option>
+		            </select></br>
+		            <h3>Body Type</h3><select name="body_type" required>
+		            	<option value="">None</option>
+		            	<option value="Hatch">Hatch</option>
+		            	<option value="Sedan">Sedan</option>
+		            	<option value="Wagon">Wagon</option>
+		            	<option value="Ute">Ute</option>
+		            	<option value="SUV/4WD">4WD</option>
+		            	<option value="Convertible">Convert</option>
+		            	<option value="Other">Other</option>
+		            </select></br>
+		            <h3>Transmission</h3><select name="car_transmission" required>
+		            	<option value="">None</option>
+		            	<option value="Auto">Auto</option>
+		                <option value="Manual">Manual</option>
+		                <option value="Sports">Sports</option>
+		            </select></br>
+		            <h3>Fuel Type</h3><select name="fuel_type" required>
+		            	<option value="">None</option>
+		            	<option value="Petrol">Petrol</option>
+		            	<option value="Diesel">Diesel</option>
+		            	<option value="LPGas">LPGas</option>
+		            	<option value="Other">Other</option>
+		            </select></br>
+		            <h3>Drive Type</h3><select name="drive_type" required>
+		            	<option value="">None</option>
+		            	<option value="Front wheel drive">FWD</option>
+		            	<option value="Rear wheel drive">RWD</option>
+		            	<option value="Four wheel drive">AWD</option>
+		            	<option value="Other">Other</option>
+		            </select></br>
+		            <h3>Features</h3>
+		            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
+		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
+		            </a>
+		            <div class="featureinput">
+						<select name="feature_name_1">
+			            	<option>Select A Feature</option>
+			            	<?php 
+			            		$query = "SELECT FEATURE_NAME FROM FEATURE";
+			            		$stmt = oci_parse($conn, $query);
+			            		if(@oci_execute($stmt)) {
+			            			while($row = oci_fetch_array($stmt)) 
+			            			{
+			            	?>
+			            	<option><?php echo $row["FEATURE_NAME"];?></option>
+			            	<?php 
+			            		}
+			            	} else {
+			            		header("error.php?Reason=BackendError");
+			            	}
+			            	?>
+			            </select>
+			            <a href="javascript:void(0);" onClick="removeFeatureField(this)">
+			            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
+			            </a>
+		            </div>
+		            
+		            <div class="submitButtons">
+						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+		            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
+		            </div>
+		        </form>
 		    <?php
 		    } else {
 		    	header("error.php?Reason=BackendError");
