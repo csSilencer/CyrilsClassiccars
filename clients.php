@@ -230,6 +230,60 @@ function mailingListFn($yn) {
 		            		echo '<h2 class="error">Email unsuccessful</h2></br>';
 		            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
 		            		break;
+							
+						case "CreatePDF":
+							//header("location: clients.php");		
+							//echo '<p>click</p>';
+ 								define('FPDF_FONTPATH', 'phputils/FPDF/font/');
+								require ("phputils/FPDF/fpdf.php");
+								class XFPDF extends FPDF {
+									function ftable($header, $data) {
+										$this -> SetFillColor(255, 0, 0);
+										$this -> SetTextColor(255, 255, 255);
+										$this -> SetDrawColor(128, 0, 0);
+										$this -> SetLineWidth(.3);
+										$this -> SetFont('', 'B');
+										$w = array(25, 35, 35, 55, 25);
+
+										for ($i = 0; $i < sizeof($header); $i++) {
+											$this -> Cell($w[$i], 7, $header[$i], 1, 0, 'C', 1);
+										}
+										$this -> Ln();
+										$this -> SetFillColor(224, 235, 255);
+										$this -> SetTextColor(0, 0, 0);
+										$this -> SetFont('');
+										$fill = 0;
+
+										foreach ($data as $row) {
+											$this -> Cell($w[0], 6, $row[0], 'LR', 0, 'L', $fill);
+											$this -> Cell($w[1], 6, $row[1], 'LR', 0, 'L', $fill);
+											$this -> Cell($w[2], 6, $row[2], 'LR', 0, 'L', $fill);
+											$this -> Cell($w[3], 6, $row[3], 'LR', 0, 'L', $fill);
+											$this -> Cell($w[4], 6, $row[4], 'LR', 0, 'L', $fill);
+											$this -> Ln();
+											$fill = !$fill;
+										}
+										$this -> Cell(array_sum($w), 0, '', 'T');
+									}
+								}
+								$query = "SELECT * FROM CLIENT ORDER BY CLIENT_GIVENNAME";
+								$stmt = oci_parse($conn, $query);
+								
+							/*
+							$pdf = new FPDF();
+							$pdf->Open();
+							$pdf->AddPage();
+							$pdf->SetFont('Arial', 'B' , 16);
+							$pdf->Cell(40,10,'First Cell - no border',0,1);
+							$pdf->Cell(100,10,'Second Cell - border/centred',1,1,'C');
+							$pdf->Ln();
+							$pdf->Cell(100,10,'Third Cell - top/bottom border','T,B',1);
+							$pdf->Ln();
+							$pdf->SetFillColor(255,0,0);
+							$pdf->Cell(100,10,'Fourth Cell - border/filled',1,1,'C',1);
+							$pdf->Output("PDFs/PDFFile1.pdf");
+							*/
+							break;
 
 						default:
 							header("location: clients.php");	  	
@@ -288,6 +342,7 @@ function mailingListFn($yn) {
 					<button class="edit btn btn-lg btn-primary" onClick="editClient();">Edit</button>
 					<button class="delete btn btn-lg btn-danger" onClick="deleteClient();">Delete</button>
 				</div>
+				<button class="edit btn btn-lg btn-primary" onClick="createPdf();">Create Clients PDF</button>
 		  </div>
 		  	<?php 
 		  	}
@@ -426,6 +481,9 @@ function mailingListFn($yn) {
 					window.location.href = "clients.php?Action=Delete&Client_ID=" + rowcol1[0].innerHTML;
 				}
 			};
+			function createPdf() {
+				window.location.href = "clients.php?Action=CreatePDF";
+			}
 		</script>
 
 	</body>
