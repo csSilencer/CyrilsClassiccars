@@ -237,7 +237,7 @@ function firstImageFn() {
 	            <span>Odometer</span><input type="number" name="odometer" min="1" value="10000"></br>
 	            <span>Doors</span><input type="number" name="door_no" min="1" max="6" value="4"></br>
 	            <span>Seats</span><input type="number" name="seat_no" min="1" max="15" value="5"></br>
-	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="5000" value="1000"></br>
+	            <span>Engine Size</span><input type="number" name="engine_size" min="0" max="99" value="10"></br>
 	            <span>Cylinders</span><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
 	            <span>Car image</span>
 	            <a class='addfield' href="javascript:void(0);" onClick="addField();">
@@ -252,7 +252,8 @@ function firstImageFn() {
 	            </div>
 
 	            <!--each time an image is uploaded, we add a new field to be able to add images again.-->
-	            <span>Make Name</span><select name="make_name">
+	            <span>Make Name</span><select name="make_name" onChange="getModels(this.value)" required>
+	            	<option>Select A Make</option>
 	            	<?php 
 	            		$query = "SELECT MAKE_NAME FROM MAKE";
 	            		$stmt = oci_parse($conn, $query);
@@ -268,23 +269,10 @@ function firstImageFn() {
 	            	}
 	            	?>
 	            </select></br>
-	            <span>Model Name</span><select name="model_name">
-	            	<?php 
-	            		$query = "SELECT MODEL_NAME FROM CMODEL";
-	            		$stmt = oci_parse($conn, $query);
-	            		if(oci_execute($stmt)) {
-	            			while($row = oci_fetch_array($stmt)) 
-	            			{
-	            	?>
-	            	<option><?php echo $row["MODEL_NAME"];?></option>
-	            	<?php 
-	            		}
-	            	} else {
-	            		header("error.php?Reason=BackendError");
-	            	}
-	            	?>
+	            <span>Model Name</span><select class="models" name="model_name">
+	            	<option>Select A Make</option>
 	            </select></br>
-	            <span>Body Type</span><select name="body_type">
+	            <span>Body Type</span><select name="body_type" required>
 	            	<option value="Hatch">Hatch</option>
 	            	<option value="Sedan">Sedan</option>
 	            	<option value="Wagon">Wagon</option>
@@ -293,25 +281,27 @@ function firstImageFn() {
 	            	<option value="Convertible">Convert</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Transmission</span><select name="car_transmission">
+	            <span>Transmission</span><select name="car_transmission" required>
 	            	<option value="Auto">Auto</option>
 	                <option value="Manual">Manual</option>
 	                <option value="Sports">Sports</option>
 	            </select></br>
-	            <span>Fuel Type</span><select name="fuel_type">
+	            <span>Fuel Type</span><select name="fuel_type" required>
 	            	<option value="Petrol">Petrol</option>
 	            	<option value="Diesel">Diesel</option>
 	            	<option value="LPGas">LPGas</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <span>Drive Type</span><select name="drive_type">
+	            <span>Drive Type</span><select name="drive_type" required>
 	            	<option value="Front wheel drive">FWD</option>
 	            	<option value="Rear wheel drive">RWD</option>
 	            	<option value="Four wheel drive">AWD</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <input type="submit" value="Submit">
-	            <input type="Reset" value="Reset">
+	            <div class="submitButtons">
+					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+	            	<input class="btn btn-lg btn-info" type="Reset" Value="Clear">
+	            </div>
 	        </form>
 		  </div>
 		</div>
@@ -469,6 +459,15 @@ function firstImageFn() {
 			function removeField (field) {
 				field.closest('.imageinput').remove();
 			};
+			function getModels(makename) {
+				$.ajax({
+					url: "getModels.php?Make_Name=" + makename, 
+					success: function (result) {
+						$(".models").empty();
+       					$(".models").html(result);
+					}
+				});
+			}
     	</script>
 	</body>
 
