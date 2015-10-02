@@ -133,6 +133,7 @@ function mailingListFn($yn) {
 									<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 					            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
 					            </div>
+					            <input class="btn btn-lg btn-danger" type="button" value="Cancel" onclick="window.location.href='clients.php'">
 				            </form>
 		            <?php	
 		            break;			
@@ -433,7 +434,7 @@ function mailingListFn($yn) {
 		  </div>
 		  <div id="tabs-3">
 				<?php
-					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
+					/*if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
 						$query= "SELECT CLIENT_ID, CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
 						$stmt = oci_parse($conn, $query);
@@ -484,7 +485,7 @@ function mailingListFn($yn) {
 						}
 					}
 				
-				?>
+				*/?>
 		  </div>
 			
 		</div>
