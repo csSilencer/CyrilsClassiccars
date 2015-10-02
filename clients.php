@@ -78,7 +78,7 @@ include("phputils/helpers.php");
 				</div>
 			</div>
 		</nav>
-		<h1>Clients</h1>
+		<h1>Manage Clients</h1>
 
 		<div id="tabs">
 			<ul>
@@ -117,7 +117,6 @@ include("phputils/helpers.php");
 									<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
 					            	<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
 					            </div>
-					            <input class="btn btn-lg btn-danger" type="button" value="Cancel" onclick="window.location.href='clients.php'">
 				            </form>
 		            <?php	
 		            break;			
@@ -421,7 +420,7 @@ include("phputils/helpers.php");
 		  </div>
 		  <div id="tabs-3">
 				<?php
-					/*if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
+					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
 						$query= "SELECT CLIENT_ID, CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
 						$stmt = oci_parse($conn, $query);
@@ -483,13 +482,13 @@ include("phputils/helpers.php");
 						}
 					}
 				
-				*/?>
+				?>
 		  </div>
 			
 		</div>
 
 		<div class="code">
-			<a href="phputils/displaysource.php?filename=clients.php">
+			<a href="phputils/displaysource.php?filename=clients.php" target="_blank">
 				<img src="assets/client.png">
 			</a>
 		</div>

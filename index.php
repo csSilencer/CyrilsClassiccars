@@ -11,6 +11,17 @@ include("phputils/logincheck.php");
 		<title>Cyrils Classic Cars</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	</head>
+	<style type="text/css">
+		.buttons {
+			width: 100%;
+			height: 100%;
+		}
+		.buttons a {
+			display: block;
+			
+			margin:auto;
+		}
+	</style>
 
 	<body>
 		<nav class="jumbotron navbar navbar-default">
@@ -38,8 +49,17 @@ include("phputils/logincheck.php");
 				</div>
 			</div>
 		</nav>
-		<h1>This is the home page</h1>
-
+		<h1>Home</h1>
+		<div class="buttons">
+			<a class="btn btn-lg btn-primary" href="vehicles.php"><h2>View/Update/Edit/Delete Vehicles</h2></a>
+			<a class="btn btn-lg btn-primary" href="clients.php"><h2>View/Update/Edit/Delete Clients</h2></a>
+			<a class="btn btn-lg btn-primary" href="makes.php"><h2>View/Update/Edit/Delete Makes</h2></a>
+			<a class="btn btn-lg btn-primary" href="models.php"><h2>View/Update/Edit/Delete Models</h2></a>
+			<a class="btn btn-lg btn-primary" href="features.php"><h2>View/Update/Edit/Delete Features</h2></a>
+			<a class="btn btn-lg btn-primary" href="images.php"><h2>Manage Vehicle Images</h2></a>
+		</div>
+		
+		
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 

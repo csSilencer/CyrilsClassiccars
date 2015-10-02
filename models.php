@@ -72,6 +72,7 @@ include("phputils/helpers.php");
 				</div>
 			</div>
 		</nav>
+		<h1>Manage Models</h1>
 		<?php 
 			$query="SELECT c.MODEL_ID, c.MODEL_NAME, m.MAKE_ID, m.MAKE_NAME  FROM CMODEL c, MAKE m
 					WHERE c.MAKE_ID = m.MAKE_ID";
@@ -282,7 +283,7 @@ include("phputils/helpers.php");
 	</div>
 
 		<div class="code">
-			<a href="phputils/displaysource.php?filename=models.php">
+			<a href="phputils/displaysource.php?filename=models.php" target="_blank">
 				<img src="assets/model.png">
 			</a>
 		</div>

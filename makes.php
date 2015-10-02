@@ -77,6 +77,7 @@ include("phputils/helpers.php");
 				</div>
 			</div>
 		</nav>
+		<h1>Manage Makes</h1>
 		<?php 
 			// echo "<p>". $conn ."</p>";
 			$query= "SELECT * FROM MAKE";
@@ -247,7 +248,7 @@ include("phputils/helpers.php");
 		    </div>
 		</div>
 		<div class="code">
-			<a href="phputils/displaysource.php?filename=makes.php">
+			<a href="phputils/displaysource.php?filename=makes.php" target="_blank">
 				<img src="assets/make.png">
 			</a>
 		</div>

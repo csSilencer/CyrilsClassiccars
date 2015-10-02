@@ -77,7 +77,7 @@ include("phputils/helpers.php");
 				</div>
 			</div>
 		</nav>
-		<h1>This is the vehicles page</h1>
+		<h1>Manage Vehicles</h1>
 
 		<div id="tabs">
 		  <ul>
@@ -446,7 +446,7 @@ include("phputils/helpers.php");
 					removeImage($_POST["carid"], $image);
 				}
 				removeFolder($_POST["carid"]);
-				
+
         		$query = "DELETE FROM CAR WHERE CAR_ID=".$_POST["carid"];
 				$stmt = oci_parse($conn,$query);
 				if (@oci_execute($stmt)) {
@@ -658,7 +658,11 @@ include("phputils/helpers.php");
             }
 		}
 		?>
-
+		<div class="code">
+			<a href="phputils/displaysource.php?filename=vehicles.php" target="_blank">
+				<img src="assets/vehicle.png">
+			</a>
+		</div>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>

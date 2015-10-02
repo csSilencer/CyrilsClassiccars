@@ -77,7 +77,7 @@ include("phputils/helpers.php");
 				</div>
 			</div>
 		</nav>
-		<h1>Features</h1>
+		<h1>Manage Features</h1>
 		<?php
 		$query= "SELECT * FROM FEATURE";
 			$stmt = oci_parse($conn, $query);
@@ -247,7 +247,7 @@ include("phputils/helpers.php");
 		    </div>
 		</div>
 		<div class="code">
-			<a href="phputils/displaysource.php?filename=features.php">
+			<a href="phputils/displaysource.php?filename=features.php" target="_blank">
 				<img src="assets/feature.png">
 			</a>
 		</div>
