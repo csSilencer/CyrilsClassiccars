@@ -161,7 +161,7 @@ include("phputils/helpers.php");
 				  						$directory = '';
 				  					}
 				  					// echo $directory;
-				  					echo '<img src="' . $directory . '" width="80" height="80">';?>
+				  					echo '<img src="' . $directory . '" width="80" height="80" alt="Car Image">';?>
 				  			</td>
 				  		</tr>
 				  	<?php 
