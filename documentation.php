@@ -12,15 +12,6 @@ include("phputils/logincheck.php");
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	</head>
 	<style type="text/css">
-		.buttons {
-			width: 100%;
-			height: 100%;
-		}
-		.buttons a {
-			display: block;
-
-			margin:auto;
-		}
 	</style>
 
 	<body>
@@ -49,19 +40,18 @@ include("phputils/logincheck.php");
 				</div>
 			</div>
 		</nav>
-		<h1>Home</h1>
-		<div class="buttons">
-			<a class="btn btn-lg btn-primary" href="vehicles.php"><h2>View/Update/Edit/Delete Vehicles</h2></a>
-			<a class="btn btn-lg btn-primary" href="clients.php"><h2>View/Update/Edit/Delete Clients</h2></a>
-			<a class="btn btn-lg btn-primary" href="makes.php"><h2>View/Update/Edit/Delete Makes</h2></a>
-			<a class="btn btn-lg btn-primary" href="models.php"><h2>View/Update/Edit/Delete Models</h2></a>
-			<a class="btn btn-lg btn-primary" href="features.php"><h2>View/Update/Edit/Delete Features</h2></a>
-			<a class="btn btn-lg btn-primary" href="images.php"><h2>Manage Vehicle Images</h2></a>
-			<a class="btn btn-lg btn-primary" href="documentation.php"><h2>View Documentation</h2></a>
-		</div>
-		</div>
-		
-		
+		<h1>Documentation</h1>
+		<h2>FIT2076 Assignment 2</h2>
+		<h2>Submitted 2nd October 2015</h2>
+		<h2>Supporting Documentation</h2>
+		<h3>Authors:</h3><span>Ivan Ristov (25115782) iris2@student.monash.edu 
+			and Martin Dulics (24222232) mdul2@student.monash.edu</span>
+		<h3>Connection details:</h3><span>Username: s24222232; Password: monash00. Alternatively, this is the $conn variable $conn = oci_connect("s24222232","monash00","FIT2076") or die("Couldn't logon.");</span>
+		<h3>Database creation file:</h3><a href="sqlscripts/createtables.txt" download>Download Table Creation File</a>
+		<h3>Data In DB/Test Data at time of submission:</h3><a href="sqlscripts/testdata.txt" download>Download Test Data</a>
+		<h3>Member Contribution:</h3><a href="documentation/Project-Completion-Details.docx" download>Download Work Breakdown</a>
+
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 

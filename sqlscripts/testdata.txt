@@ -1,0 +1,99 @@
+    CAR_ID    MAKE_ID   MODEL_ID CAR_REG CAR_BODYTYPE    CAR_TRANSMISSION CAR_ODOMETER   CAR_YEAR CAR_COLOUR            CAR_DOORS  CAR_SEATS CAR_CYLINDERS CAR_ENGINESIZE CAR_FUELTYPE CAR_DRIVETYPE                  CAR_FEATURE_ID
+---------- ---------- ---------- ------- --------------- ---------------- ------------ ---------- -------------------- ---------- ---------- ------------- -------------- ------------ ------------------------------ --------------
+         1          1          1 REG001  HATCH           MANUAL                  68000       1965 LIGHT BLUE                    2          5             4              5 PETROL       REAR WHEEL DRIVE                            1 
+         2          2          2 REG002  COUPE           MANUAL                  30000       1954 WHITE                         2          4             6              3 UNLEADED 98  REAR WHEEL DRIVE                            3 
+         3          2          3 MERC01  COUPE           MANUAL                  80000       1955 SILVER                        2          1             8              3 LOW-LEAD GAS REAR WHEEL DRIVE                            5 
+         4          3          4 D47SUN  COUPE           MANUAL                  45000       1969 RED                           2          2             6              2 UNLEADED 98  REAR WHEEL DRIVE                            4 
+         5          4          5 ULEGAL  SEDAN           MANUAL                 100000       1972 ORANGE                        4          5             8              5 UNLEADED 98  REAR WHEEL DRIVE                            6 
+         6          4          6 BT-1    SEDAN           MANUAL                 120000       1988 CANARY YELLOW                 4          5             6              3 UNLEADED 98  REAR WHEEL DRIVE                            4 
+         7          5          7 SMIL3Y  COUPE           MANUAL                  46500       1967 DARK GREEN                    2          4             4              1 UNLEADED 91  FRONT WHEEL DRIVE                           7 
+         8          6          8 REG003  COUPE           MANUAL                  27000       1972 WHITE                         2          5             6              3 UNLEADED 98  REAR WHEEL DRIVE                              
+         9          7          9 SN4K3   COUPE           MANUAL                 250000       1970 LIME GREEN                    2          5             8              7 UNLEADED 98  REAR WHEEL DRIVE                            4 
+        10          8         10 CHEVY   COUPE           MANUAL                  90000       1976 RED                           2          2             8              6 UNLEADED 98  REAR WHEEL DRIVE                            2 
+        39          4          5 ABC123  SEDAN           SPORTS                  10000       2015 RED                           4          5             4             10 DIESEL       FRONT WHEEL DRIVE                             
+        36          1          1 SXM192  Hatch           Auto                    10000       2015 red                           4          5             4              1 Petrol       Front wheel drive                             
+
+ 12 rows selected 
+
+no rows selected
+
+
+ CLIENT_ID CLIENT_GIVENNAME                                   CLIENT_FAMILYNAME                                  CLIENT_ADDRESS                                                                                                                                                                                           CLIENT_PHONE CLIENT_MOBILE CLIENT_EMAIL                                       CLIENT_MAILINGLIST
+---------- -------------------------------------------------- -------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------ ------------- -------------------------------------------------- ------------------
+        13 IVAN                                               RISTOV                                             10 OHIO CRESENT 3805                                                                                                                                                                                     0433679462   0433679462    RISTOVI@MEGASOFT.NET.AU                            Y                  
+         1 JOHN                                               CITIZEN                                            1 ABCD STREET, MELBOURNE VIC 3000                                                                                                                                                                        98981212     0412345678    JOHN@CITIZEN.COM                                   N                  
+         2 SAM                                                JOHNSON                                            2 ABCD STREET, MELBOURNE VIC 3000                                                                                                                                                                        98888888     0444444444    SAM@JOHNSON.COM                                    N                  
+         3 DARTH                                              VADER                                              100 DEATH STAR ROAD, DEATH STAR                                                                                                                                                                          66666666     0466666666    DARTH@VADER.COM                                    N                  
+         4 GARY                                               GLITTER                                            4 GLITTER BOULEVARD, SYDNEY NSW 2000                                                                                                                                                                     8988446633   0413465544    GARY@GLITTER.COM                                   N                  
+         5 KANYE                                              WEST                                               9 KANYEBEST ROAD, BRISBANE QLD 4000                                                                                                                                                                      76547654     0423235652    KANYE@WEST.COM                                     N                  
+         6 MARK                                               ZUCKERBERG                                         44 FACEBOOK STREET, MELBOURNE 3000                                                                                                                                                                       98124563     0450985545    MARK@ZUCKERBERG.COM                                N                  
+         7 MARTIN                                             DULICS                                             9 TOKYO ROAD, JAPAN 5555                                                                                                                                                                                 0450549805   0450495045    MDUL2@STUDENT.MONASH.EDU                           Y                  
+        12 IVAN                                               RISTOV                                             10 OHIO CRESENT 3805                                                                                                                                                                                     0433679462   0433679462    ME@MARTINDULICS.COM                                Y                  
+
+ 9 rows selected 
+
+  MODEL_ID    MAKE_ID MODEL_NAME                   
+---------- ---------- ------------------------------
+         1          1 MUSTANG                        
+         2          2 300 SL                         
+         3          2 300 SLR                        
+         4          3 FAIRLADY Z                     
+         5          4 TORANA LJ                      
+         6          4 VL CALAIS BT-1                 
+         7          5 COOPER MARK II                 
+         8          6 3.0CSL                         
+         9          7 BARRACUDA                      
+        10          8 CORVETTE C3                    
+
+ 10 rows selected 
+
+FEATURE_ID FEATURE_NAME                                     
+---------- --------------------------------------------------
+         1 CONVERTIBLE HARDTOP                                
+         2 CONVERTIBLE SOFTTOP                                
+         3 CHOP TOP                                           
+         4 GULLWING DOORS                                     
+         5 AIR CONDITIONING                                   
+         6 TURBO INTERCOOLED                                  
+         7 SUPERCHARGED INTERCOOLED                           
+         8 LIMITED SLIP DIFFERENTIAL                          
+         9 HEAVY DUTY CLUTCH                                  
+        10 CHROME TRIM                                        
+        11 CHROME WHEELS                                      
+        12 CENTRAL LOCKING                                    
+        13 ENGINE IMMOBILISER AND ALARM                       
+        14 POWER STEERING                                     
+
+ 14 rows selected 
+
+LISTING_ID  CLIENT_ID     CAR_ID LISTING_PRICE
+---------- ---------- ---------- -------------
+         1          1          1         38000 
+         2          4          3         56000 
+         3          2          7         48000 
+         4          6          8         90000 
+         5          6          9         33000 
+         6          6         10         74500 
+
+ 6 rows selected 
+
+   MAKE_ID MAKE_NAME                    
+---------- ------------------------------
+         1 MARTINWA                       
+         2 MERCEDES-BENZ                  
+         3 DATSUN                         
+         4 HOLDEN                         
+         5 MINI                           
+         6 BMW                            
+         7 PLYMOUTH                       
+         8 CHEVROLET                      
+        14 ABCD                           
+        15 abc                            
+
+ 10 rows selected 
+
+   SALE_ID  CLIENT_ID LISTING_ID  SALE_COST
+---------- ---------- ---------- ----------
+         1          1          1      36000 
+         2          4          2      50000 
+
