@@ -3,14 +3,7 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
-//takes a y/n value and spits out html options for dropdown
-function mailingListFn($yn) {
-	if($yn == 'Y') {
-		return '<option value="Y" selected>Y</option>' . '<option value="N">N</option>';
-	} else {
-		return '<option value="N" selected>N</option>' . '<option value="Y">Y</option>';
-	}
-}
+include("phputils/helpers.php");
 
 ?>
 <html>

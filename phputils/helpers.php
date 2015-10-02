@@ -59,4 +59,18 @@
 			//do nothing;
 		}
 	}
+	function getMakeByName ($makename, $conn) {
+		$query = "SELECT * FROM MAKE WHERE MAKE_NAME='".$makename."'";
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		return oci_fetch_array($stmt);
+	}
+	//takes a y/n value and spits out html options for dropdown
+	function mailingListFn($yn) {
+		if($yn == 'Y') {
+			return '<option value="Y" selected>Y</option>' . '<option value="N">N</option>';
+		} else {
+			return '<option value="N" selected>N</option>' . '<option value="Y">Y</option>';
+		}
+	}
 ?>

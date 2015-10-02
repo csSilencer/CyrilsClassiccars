@@ -4,13 +4,6 @@ ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
 include("phputils/helpers.php");
-
-function getMakeByName ($makename, $conn) {
-	$query = "SELECT * FROM MAKE WHERE MAKE_NAME='".$makename."'";
-	$stmt = oci_parse($conn,$query);
-	oci_execute($stmt);
-	return oci_fetch_array($stmt);
-}
 ?>
 <html>
 	<head>

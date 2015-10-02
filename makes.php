@@ -3,6 +3,7 @@ session_start();
 ob_start();
 include("phputils/logincheck.php");
 include("phputils/conn.php");
+include("phputils/helpers.php");
 ?>
 <html>
 	<head>

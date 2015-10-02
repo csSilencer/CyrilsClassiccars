@@ -211,10 +211,10 @@ include("phputils/helpers.php");
 	            	?>
 	            	</div>
 		            <h3>New images:</h3>
-		            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
+		            <a class='addimagefield editimagefield' href="javascript:void(0);" onClick="addImageField(this);">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 		            </a>
-		            <div class="imageinput" id="file_1">
+		            <div class="imageinput editimagediv" id="file_1">
 		            	<input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
 						<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
 			            <a href="javascript:void(0);" onClick="removeImageField(this)">
@@ -291,7 +291,7 @@ include("phputils/helpers.php");
 		            	<option value="Four wheel drive" <?php echo fSelect("FOUR WHEEL DRIVE", $row["CAR_DRIVETYPE"]);?>>AWD</option>
 		            	<option value="Other" <?php echo fSelect("OTHER", $row["CAR_DRIVETYPE"]);?>>Other</option>
 		            </select></br>
-		            <h3>Features</h3>
+		            <!-- <h3>Features</h3>
 		            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 		            </a>
@@ -299,24 +299,24 @@ include("phputils/helpers.php");
 						<select name="feature_name_1">
 			            	<option>Select A Feature</option>
 			            	<?php 
-			            		$query = "SELECT FEATURE_NAME FROM FEATURE";
-			            		$stmt = oci_parse($conn, $query);
-			            		if(@oci_execute($stmt)) {
-			            			while($row = oci_fetch_array($stmt)) 
-			            			{
+			            		//$query = "SELECT FEATURE_NAME FROM FEATURE";
+			            		//$stmt = oci_parse($conn, $query);
+			            		//if(@oci_execute($stmt)) {
+			            		//	while($row = oci_fetch_array($stmt)) 
+			            		//	{
 			            	?>
-			            	<option><?php echo $row["FEATURE_NAME"];?></option>
+			            	<option><?php //echo $row["FEATURE_NAME"];?></option>
 			            	<?php 
-			            		}
-			            	} else {
-			            		header("error.php?Reason=BackendError");
-			            	}
+			            	//	}
+			            	//} else {
+			            	//	header("error.php?Reason=BackendError");
+			            	//}
 			            	?>
 			            </select>
 			            <a href="javascript:void(0);" onClick="removeFeatureField(this)">
 			            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
 			            </a>
-		            </div>
+		            </div> -->
     	            
 		            <div class="submitButtons">
 						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
@@ -389,10 +389,10 @@ include("phputils/helpers.php");
 	            <h3>Engine Size:</h3><input type="number" name="engine_size" min="0" max="99" value="10"></br>
 	            <h3>Cylinders:</h3><input type="number" name="cylinder_no" min="1" max="12" value="4"></br>
 	            <h3>Car image:</h3>
-	            <a class='addimagefield' href="javascript:void(0);" onClick="addImageField();">
+	            <a class='addimagefield newimagefield' href="javascript:void(0);" onClick="addImageField(this);">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
-	            <div class="imageinput" id="file_1">
+	            <div class="imageinput newimagediv" id="file_1">
 	            	<input type="file" accept="image/*" name="file_1"  onchange="showMyImage(this)"/>
 					<img id="thumbnail_1" name="thumbnail_1" style="width:20%; margin-top:10px;"  src="" alt="image"/>
 		            <a href="javascript:void(0);" onClick="removeImageField(this)">
@@ -451,7 +451,7 @@ include("phputils/helpers.php");
 	            	<option value="Four wheel drive">AWD</option>
 	            	<option value="Other">Other</option>
 	            </select></br>
-	            <h3>Features</h3>
+	            <!-- <h3>Features</h3>
 	            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
 	            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 	            </a>
@@ -459,24 +459,24 @@ include("phputils/helpers.php");
 					<select name="feature_name_1">
 		            	<option>Select A Feature</option>
 		            	<?php 
-		            		$query = "SELECT FEATURE_NAME FROM FEATURE";
-		            		$stmt = oci_parse($conn, $query);
-		            		if(@oci_execute($stmt)) {
-		            			while($row = oci_fetch_array($stmt)) 
-		            			{
+		            		//$query = "SELECT FEATURE_NAME FROM FEATURE";
+		            		//$stmt = oci_parse($conn, $query);
+		            		//if(@oci_execute($stmt)) {
+		            		//	while($row = oci_fetch_array($stmt)) 
+		            		//	{
 		            	?>
-		            	<option><?php echo $row["FEATURE_NAME"];?></option>
+		            	<option><?php //echo $row["FEATURE_NAME"];?></option>
 		            	<?php 
-		            		}
-		            	} else {
-		            		header("error.php?Reason=BackendError");
-		            	}
+		            	//	}
+		            	//} else {
+		            	//	header("error.php?Reason=BackendError");
+		            	//}
 		            	?>
 		            </select>
 		            <a href="javascript:void(0);" onClick="removeFeatureField(this)">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png">
 		            </a>
-	            </div>
+	            </div> -->
 
 	            <div class="submitButtons">
 					<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
@@ -610,15 +610,27 @@ include("phputils/helpers.php");
 		            reader.readAsDataURL(file);
 		        }    
 		    };
-			function addImageField () {
-			    var lastfile = $('.imageinput').last();
-			    var countfile = ($('.imageinput').length)+1;
+			function addImageField (field) {
+				console.log($(field).attr('class') == 'addimagefield editimagefield');
+
+				if('addimagefield editimagefield' == $(field).attr('class')) {//need to be able to distinguish between tabs
+					var lastfile = $('.editimagediv').last();
+					var countfile = ($('.editimagediv').length)+1;
+					var classcopy = "imageinput editimagediv";
+					var selector = ".editimagediv";
+				} else {
+				    var lastfile = $('.newimagediv').last();
+				    var countfile = ($('.newimagediv').length)+1;
+				    var classcopy = "imageinput newimagediv";
+				    var selector = ".newimagediv";
+				}
+
 			    if(lastfile.length == 0) {
-			    	lastfile = $('.addimagefield');
+			    	lastfile = field;
 			    }
 
 			    $("<div>", {
-			    	"class": "imageinput",
+			    	"class": classcopy,
 			    	"id": "file_"+countfile
 			    }).insertAfter(lastfile);
 
@@ -628,9 +640,9 @@ include("phputils/helpers.php");
 			        "name": "file_"+countfile,
 			        "id": "file_"+countfile,
 			        "onchange": "showMyImage(this)"
-			    }).appendTo($('.imageinput').last());
+			    }).appendTo($(selector).last());
 
-			    $("</br>").appendTo($('.imageinput').last());
+			    $("</br>").appendTo($(selector).last());
 			    
 			    $( "<img/>", {
 			    	"id": "thumbnail_" +countfile,
@@ -638,9 +650,9 @@ include("phputils/helpers.php");
 			    	"style": "width:20%; margin-top:10px;",
 			    	"src": "",
 			    	"alt": "image"
-			    }).appendTo($('.imageinput').last());
+			    }).appendTo($(selector).last());
 
-			    $('<a href="javascript:void(0);" onClick="removeImageField(this);"><img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png"></a>').appendTo($('.imageinput').last());
+			    $('<a href="javascript:void(0);" onClick="removeImageField(this);"><img src="assets/glyphicons_free/glyphicons/png/glyphicons-193-circle-remove.png"></a>').appendTo($(selector).last());
 			};
 			function removeImageField (field) {
 				field.closest('.imageinput').remove();
@@ -654,11 +666,15 @@ include("phputils/helpers.php");
 					}
 				});
 			}
-			function addFeatureField () {
+			function addFeatureField (field) {
+				/**
+					Deprecated as the spec doesnt specify features on the vehicle page
+				**/
 				var lastfeature = $('.featureinput').last();
 				var countfeature = ($('.featureinput').length)+1;
+
 			    if(lastfeature.length == 0) {
-			    	lastfeature = $('.addfeaturefield');
+			    	lastfeature = field;
 			    }
 
 			    featureField = $('.featureinput').first();
@@ -673,6 +689,9 @@ include("phputils/helpers.php");
 			    lastfeature.attr("name", "feature_name_"+countfeature);
 			}
 			function removeFeatureField (field) {
+				/**
+					Deprecated as the spec doesnt specify features on the vehicle page
+				**/
 				var countfeature = ($('.featureinput').length);
 				if(countfeature == 1) {//we need to save the feature field to save the features or not have to load them again
 					$(".addfeaturefield").data(field.closest('.featureinput'));
