@@ -42,19 +42,26 @@
 			return "unable to fetch";
 		}
 	}
-	function getCarImages($rego_no) {
-		$directory = 'vehicle_images/'.$rego_no;
+	function getCarImages($car_id) {
+		$directory = 'vehicle_images/'.$car_id;
 		if (file_exists($directory)) {
 			$scanned_directory = array_diff(scandir($directory), array('..', '.'));
 			return $scanned_directory;
 		}
 		return Array();
 	}
-	function removeImage($rego_no, $image) {
-		$file = 'vehicle_images/'.$rego_no.'/'.$image;
+	function removeImage($car_id, $image) {
+		$file = 'vehicle_images/'.$car_id.'/'.$image;
 		if (file_exists($file)) {
 			unlink($file);
-			echo "removed file";
+		} else {
+			//do nothing;
+		}
+	}
+	function removeFolder($car_id) {
+		$file = 'vehicle_images/'.$car_id;
+		if (is_dir($file)) {
+			rmdir($file);
 		} else {
 			//do nothing;
 		}

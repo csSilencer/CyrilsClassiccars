@@ -105,7 +105,10 @@ include("phputils/helpers.php");
 		  				case "Search":
 		  				case "SearchAll":
 		  					if($_GET["Action"] == "Search") {
-			  					$query = "SELECT * FROM CAR WHERE CAR_REG LIKE '%".$_POST["rego_no"]."%' AND MAKE_ID IN (SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME LIKE '%".$_POST["make_name"]."%') AND MODEL_ID IN (SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME LIKE '%".$_POST["model_name"]."%')";
+		  						$reg = strtoupper($_POST["rego_no"]);//LIKE is case sensitive. All our data is uppercase at insertion
+		  						$make = strtoupper($_POST["make_name"]);
+		  						$model = strtoupper($_POST["model_name"]);
+			  					$query = "SELECT * FROM CAR WHERE CAR_REG LIKE '%".$reg."%' AND MAKE_ID IN (SELECT MAKE_ID FROM MAKE WHERE MAKE_NAME LIKE '%".$make."%') AND MODEL_ID IN (SELECT MODEL_ID FROM CMODEL WHERE MODEL_NAME LIKE '%".$model."%')";
 				  				$stmt = oci_parse($conn, $query);
 		  					} else {
 		  						$query = "SELECT * FROM CAR";
@@ -151,9 +154,9 @@ include("phputils/helpers.php");
 				  			<td><?php echo $row["CAR_COLOUR"];?></td>
 				  			<td><!-- Car image thumbnail -->
 				  				<?php
-				  					$images = getCarImages($row["CAR_REG"]);
+				  					$images = getCarImages($row["CAR_ID"]);
 				  					if(sizeof($images) > 0) {
-				  						$directory = "vehicle_images/".$row["CAR_REG"]."/".$images[2];
+				  						$directory = "vehicle_images/".$row["CAR_ID"]."/".$images[2];
 				  					} else {
 				  						$directory = '';
 				  					}
@@ -201,10 +204,10 @@ include("phputils/helpers.php");
 		            <span style="color:red; padding-left:15px;">Tick to remove</span>
 		            <div class="existingimages">
 	            	<?php 
-	            		foreach(getCarImages($row["CAR_REG"]) as $image) 
+	            		foreach(getCarImages($row["CAR_ID"]) as $image) 
 	            		{
 	            	?>
-	            			<input type="checkbox" name=<?php echo '"'.$image.'"';?> value=<?php echo '"'.$image.'"';?>><img src=<?php echo '"vehicle_images/'.$row["CAR_REG"].'/'.$image.'"';?> width="200" height="200"><br>
+	            			<input type="checkbox" name=<?php echo '"'.$image.'"';?> value=<?php echo '"'.$image.'"';?>><img src=<?php echo '"vehicle_images/'.$row["CAR_ID"].'/'.$image.'"';?> width="200" height="200"><br>
 	            	<?php 
 	            		} //end for each 
 	            	?>
@@ -332,7 +335,7 @@ include("phputils/helpers.php");
 		    	$query = "UPDATE CAR SET MAKE_ID=:mkid, MODEL_ID=:moid, CAR_REG=:creg, CAR_ODOMETER=:codom, CAR_YEAR=:cyear, CAR_DRIVETYPE=:cdrive, CAR_BODYTYPE=:cbod, CAR_COLOUR=:ccolor, CAR_TRANSMISSION=:ctran,"; 
 		    	$query = $query . " CAR_FUELTYPE=:cfuel, CAR_SEATS=:cseat, CAR_DOORS=:cdoor, CAR_ENGINESIZE=:cengin, CAR_CYLINDERS=:ccylin WHERE CAR_ID=".$_POST["carid"];
 		    	$stmt = oci_parse($conn, $query);
-		    	foreach(getCarImages($_POST["rego_no"]) as $image) {
+		    	foreach(getCarImages($_POST["carid"]) as $image) {
 		    		//php replaces name such as img.png with img_png
 		    		//we have to work around this
 		    		$postimg = str_split($image, strlen($image)-4); //subtract standard windows extension length
@@ -340,7 +343,7 @@ include("phputils/helpers.php");
 		    		$postimg = $postimg[0] . '_' . explode(".", $postimg[1], 2)[1];
 		    		// echo $postimg;
 		    		if(isset($_POST[$postimg])) {
-		    			removeImage($_POST["rego_no"], $image);
+		    			removeImage($_POST["carid"], $image);
 		    		} else {
 		    			//do nothing
 		    		}
@@ -348,8 +351,12 @@ include("phputils/helpers.php");
 				foreach($_FILES as $image) {
 					// specify a directory name for permanent storage
 					// we're going to leave the filename as it was on client machine
+					if (!file_exists('vehicle_images/'.$_POST["carid"])) {
+					    mkdir('vehicle_images/'.$_POST["carid"], 0777, true);
+					}
+
 					if(isset($image["name"]) & strlen($image["name"]) > 0) {//if image field empty
-						$upfile = "vehicle_images/".$_POST["rego_no"]."/".$image["name"];
+						$upfile = "vehicle_images/".$_POST["carid"]."/".$image["name"];
 						// this does the work
 						//moved the uploaded file from temporary location to permanent storage
 						//location
@@ -399,14 +406,69 @@ include("phputils/helpers.php");
 					header("location: vehicles.php?Action=EditFail");
 				}
 				break;
-
+			case "Delete":
+				$query = "SELECT * FROM CAR WHERE CAR_ID=".$_GET["Car_ID"];
+				$stmt = oci_parse($conn, $query);
+				if(@oci_execute($stmt)) {
+					$car = oci_fetch_array($stmt);
+				} else {
+					header("error.php?Reason=BackendError");
+				}
+			?>
+				<h2>The record you are deleting:</h2>
+            	<form method="post" action="vehicles.php?Action=DeleteConfirm">
+            		<input style="display:none;" type="text" name="carid" value=<?php echo '"'.$_GET["Car_ID"].'"'?>>
+                	<h3>ID#:</h3><span><?php echo $_GET["Car_ID"];?></span><br>
+                	<h3>Make:</h3><?php echo getMakeByID($car["MAKE_ID"], $conn)["MAKE_NAME"];?></span><br>
+                	<h3>Model:</h3><?php echo getModelByID($car["MODEL_ID"], $conn)["MODEL_NAME"];?></span><br>
+                	<h3>Registration:</h3><?php echo $car["CAR_REG"];?></span><br>
+                	<h3>Body:</h3><?php echo $car["CAR_BODYTYPE"];?></span><br>
+                	<h3>Year:</h3><?php echo $car["CAR_YEAR"];?></span><br>
+                	<h3>Images:</h3><br>
+                	<span style="color:red; padding-left:15px">All images will be deleted</span><br>
+					<?php 
+	            		foreach(getCarImages($_GET["Car_ID"]) as $image) 
+	            		{
+	            	?>
+	            			<img src=<?php echo '"vehicle_images/'.$_GET["Car_ID"].'/'.$image.'"';?> width="200" height="200"><br>
+	            	<?php 
+	            		} //end for each 
+	            	?>
+                	<div class="submitbuttons">
+                		<input class="btn btn-lg btn-primary" type="submit" value="Delete">
+                		<input class="btn btn-lg btn-danger" type="button" value="Cancel" onClick="window.location.href='vehicles.php'">
+                	</div>
+                </form>
+			<?php
+				break;
+			case "DeleteConfirm":
+				foreach(getCarImages($_POST["carid"]) as $image) {
+					removeImage($_POST["carid"], $image);
+				}
+				removeFolder($_POST["carid"]);
+				
+        		$query = "DELETE FROM CAR WHERE CAR_ID=".$_POST["carid"];
+				$stmt = oci_parse($conn,$query);
+				if (@oci_execute($stmt)) {
+					echo '<h2>Record Deleted</h2>';
+					echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+				}
+				else {
+					echo '<h2 class="error">Deletion Failed</h2>';	
+					echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+				}
+				break;	
+			case "EditFail":
+				echo '<h2 class="error">Unable to edit record</h2></br>';
+        		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+        		break;
 		  	case "AddSuccess":
-            		echo '<h2>Record Added successfully</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+        		echo '<h2>Record Added successfully</h2></br>';
+        		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
         		break;
           	case "AddFail":
-            		echo '<h2 class="error">Unable to add record</h2></br>';
-            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+        		echo '<h2 class="error">Unable to add record</h2></br>';
+        		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
            		break;
             	} //end switch
 		  	} //end else 
@@ -528,20 +590,19 @@ include("phputils/helpers.php");
         <?php
 		} else {
 
-			
+        	$query2 = "SELECT SEQ_CAR_ID.nextval FROM DUAL";
+            $stmt2 = oci_parse($conn, $query2);
+            if(@oci_execute($stmt2)) {
+            	$cid = oci_fetch_array($stmt2)["NEXTVAL"];
+            } else {
+            	header("location: vehicles.php?Action=AddFail");
+            }
+
 			$query = "INSERT INTO CAR (CAR_ID, MAKE_ID, MODEL_ID, CAR_REG, CAR_BODYTYPE, CAR_TRANSMISSION, CAR_ODOMETER, CAR_YEAR,";
 			$query = $query . "CAR_COLOUR, CAR_DOORS, CAR_SEATS, CAR_CYLINDERS, CAR_ENGINESIZE, CAR_FUELTYPE, CAR_DRIVETYPE)";
-			$query = $query . "VALUES (SEQ_CAR_ID.nextval, :mkid, :moid, :creg, :cbod, :ctran, :codom, :cyear, :ccolor, :cdoor, :cseat, :ccylin, :cengin, :cfuel, :cdrive)";
-            // print_r($_POST);
-            // echo sizeof($_POST);
-            // foreach($_POST as $value) {
-            // 	echo $value . " " . gettype($value) . "</br>";
-            // }
-            // echo getMakeIDByName($_POST["make_name"], $conn). "type: ". gettype(getMakeIDByName($_POST["make_name"], $conn));
-            // $mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
-            // $moid = intval(getModelIDByName($_POST["model_name"], $conn));
-            // echo $mkid ."</br>";
-            // echo $moid;
+			$query = $query . "VALUES (:cid, :mkid, :moid, :creg, :cbod, :ctran, :codom, :cyear, :ccolor, :cdoor, :cseat, :ccylin, :cengin, :cfuel, :cdrive)";
+
+
             $stmt = oci_parse($conn,$query);
             $mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
             $moid = intval(getModelIDByName($_POST["model_name"], $conn));
@@ -559,14 +620,14 @@ include("phputils/helpers.php");
             $cdrive = strtoupper($_POST["drive_type"]);
 
 
-			if (!file_exists('vehicle_images/'.$creg)) {
-			    mkdir('vehicle_images/'.$creg, 0777, true);
+			if (!file_exists('vehicle_images/'.$cid)) {
+			    mkdir('vehicle_images/'.$cid, 0777, true);
 			}
 
 			foreach($_FILES as $image) {
 				// specify a directory name for permanent storage
 				// we're going to leave the filename as it was on client machine
-				$upfile = "vehicle_images/".$creg."/".$image["name"];
+				$upfile = "vehicle_images/".$cid."/".$image["name"];
 				// this does the work
 				//moved the uploaded file from temporary location to permanent storage
 				//location
@@ -575,7 +636,7 @@ include("phputils/helpers.php");
 					header("location: vehicles.php?Action=AddFail");
 				}
 			}
-
+            oci_bind_by_name($stmt, ":cid", $cid);
             oci_bind_by_name($stmt, ":mkid", $mkid);
 			oci_bind_by_name($stmt, ":moid", $moid);
 			oci_bind_by_name($stmt, ":creg", $creg);
@@ -650,8 +711,6 @@ include("phputils/helpers.php");
 		        }    
 		    };
 			function addImageField (field) {
-				console.log($(field).attr('class') == 'addimagefield editimagefield');
-
 				if('addimagefield editimagefield' == $(field).attr('class')) {//need to be able to distinguish between tabs
 					var lastfile = $('.editimagediv').last();
 					var countfile = ($('.editimagediv').length)+1;
