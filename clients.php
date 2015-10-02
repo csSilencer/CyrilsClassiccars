@@ -80,15 +80,6 @@ include("phputils/helpers.php");
 		</nav>
 		<h1>Clients</h1>
 
-		<?php 
-			$query= "SELECT * FROM CLIENT";
-			$stmt = oci_parse($conn, $query);
-			if(!oci_execute($stmt)) {
-				echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
-				echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
-			}
-		?>
-
 		<div id="tabs">
 			<ul>
 				<li><a href="#tabs-1">View Clients</a></li>
@@ -156,7 +147,6 @@ include("phputils/helpers.php");
 		                    echo "<h2 class='error'>Error updating make record</h2>";
 		                }
 		                echo "<input class='btn btn-lg btn-primary submitButtons' type='button' value='Return to List' OnClick='window.location=\"clients.php\"'>";
-	                break;
 		            	break;
 		            	case "Delete":
 		            ?>
@@ -227,83 +217,81 @@ include("phputils/helpers.php");
 						case "CreatePDF":
 							//header("location: clients.php");		
 							//echo '<p>click</p>';
- 								define('FPDF_FONTPATH', 'phputils/FPDF/font/');
-								require ("phputils/FPDF/fpdf.php");
-								class XFPDF extends FPDF {
-									
-									function ftable($header, $data) {
-										$this -> SetFillColor(128, 0, 0);
-										$this -> SetTextColor(255, 255, 255);
-										$this -> SetDrawColor(50, 0, 0);
-										$this -> SetLineWidth(.2);
-										$this -> SetFont('', 'B');
-										$w = array(10, 20, 20, 50, 15, 15, 40, 20);
-
-										for ($i = 0; $i < sizeof($header); $i++) 
-										{
-											$this -> Cell($w[$i], 7, $header[$i], 1, 0, 'C', true);
-										}
-										$this -> Ln();
-										$this -> SetFillColor(224, 235, 255);
-										$this -> SetTextColor(0, 0, 0);
-										$this -> SetFont('');
-										$fill = 0;
-
-										foreach ($data as $row) 
-										{
-											$this -> Cell($w[0], 6, $row[0], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[1], 6, $row[1], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[2], 6, $row[2], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[3], 6, $row[3], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[4], 6, $row[4], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[5], 6, $row[5], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[6], 6, $row[6], 'LR', 0, 'L', $fill);
-											$this -> Cell($w[7], 6, $row[7], 'LR', 0, 'L', $fill);
-											$this -> Ln();
-											$fill = !$fill;
-										}
-										$this -> Cell(array_sum($w), 0, '', 'T');
-									}
-								}
-								$query = "SELECT * FROM CLIENT";
-								$stmt = oci_parse($conn, $query);
-								oci_execute($stmt);
-								$nrows = oci_fetch_all($stmt, $results);
-								if ($nrows > 0)
-								{
-									$data = array();
-									$header = array();
-									while(list($column_name) = each($results))
-									{
-										$header[] = $column_name;
-									}
-									for($i=0; $i<$nrows; $i++)
-									{
-										reset($results);
-										$j=0;
-										while(list(,$column_value) = each($results))
-										{
-											$data[$i][$j] = $column_value[$i];
-											$j++;
-										}
-									}
-								} else {
-									echo "No Records Found";
-								}
-								oci_free_statement($stmt);
-								$pdf = new XFPDF();
-								$pdf->Open();
-								$pdf->SetFont('Arial','B',12);
-								$pdf->AddPage();
-								$pdf->Write(7, "Cyril's Classic Cars Client List");
-								$pdf->Ln();
-								$pdf->SetFont('Arial','',5);
-								$pdf->ftable($header,$data);
-								$pdf->Output("PDFs/Clients.pdf");
-								header("location: clients.php?Action=PDFSuccess");
+							define('FPDF_FONTPATH', 'phputils/FPDF/font/');
+							require ("phputils/FPDF/fpdf.php");
+							class XFPDF extends FPDF {
 								
+								function ftable($header, $data) {
+									$this -> SetFillColor(128, 0, 0);
+									$this -> SetTextColor(255, 255, 255);
+									$this -> SetDrawColor(50, 0, 0);
+									$this -> SetLineWidth(.2);
+									$this -> SetFont('', 'B');
+									$w = array(10, 20, 20, 50, 15, 15, 40, 20);
+
+									for ($i = 0; $i < sizeof($header); $i++) 
+									{
+										$this -> Cell($w[$i], 7, $header[$i], 1, 0, 'C', true);
+									}
+									$this -> Ln();
+									$this -> SetFillColor(224, 235, 255);
+									$this -> SetTextColor(0, 0, 0);
+									$this -> SetFont('');
+									$fill = 0;
+
+									foreach ($data as $row) 
+									{
+										$this -> Cell($w[0], 6, $row[0], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[1], 6, $row[1], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[2], 6, $row[2], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[3], 6, $row[3], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[4], 6, $row[4], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[5], 6, $row[5], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[6], 6, $row[6], 'LR', 0, 'L', $fill);
+										$this -> Cell($w[7], 6, $row[7], 'LR', 0, 'L', $fill);
+										$this -> Ln();
+										$fill = !$fill;
+									}
+									$this -> Cell(array_sum($w), 0, '', 'T');
+								}
+							}
+							$query = "SELECT * FROM CLIENT";
+							$stmt = oci_parse($conn, $query);
+							oci_execute($stmt);
+							$nrows = oci_fetch_all($stmt, $results);
+							if ($nrows > 0)
+							{
+								$data = array();
+								$header = array();
+								while(list($column_name) = each($results))
+								{
+									$header[] = $column_name;
+								}
+								for($i=0; $i<$nrows; $i++)
+								{
+									reset($results);
+									$j=0;
+									while(list(,$column_value) = each($results))
+									{
+										$data[$i][$j] = $column_value[$i];
+										$j++;
+									}
+								}
+							} else {
+								echo "No Records Found";
+							}
+							oci_free_statement($stmt);
+							$pdf = new XFPDF();
+							$pdf->Open();
+							$pdf->SetFont('Arial','B',12);
+							$pdf->AddPage();
+							$pdf->Write(7, "Cyril's Classic Cars Client List");
+							$pdf->Ln();
+							$pdf->SetFont('Arial','',5);
+							$pdf->ftable($header,$data);
+							$pdf->Output("PDFs/Clients.pdf");
+							header("location: clients.php?Action=PDFSuccess");
 							break;
-							
 						case "PDFSuccess":
 							echo '<h2>PDF Created at PDFs/Clients.pdf</h2><br />';
 							echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="clients.php">';
@@ -318,6 +306,12 @@ include("phputils/helpers.php");
 		  	
 		  		if(!isset($_GET["Action"])) 
 		  		{
+					$query= "SELECT * FROM CLIENT";
+					$stmt = oci_parse($conn, $query);
+					if(!@oci_execute($stmt)) {
+						echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
+						echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+					}
 
 		  	?>
 				<table id="clients" class="display" cellspacing="0" width="100%">
@@ -430,40 +424,51 @@ include("phputils/helpers.php");
 					{
 						$query= "SELECT CLIENT_ID, CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
 						$stmt = oci_parse($conn, $query);
-						if(!oci_execute($stmt)) 
+						if(!@oci_execute($stmt)) 
 						{
 							echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
 							echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
 						}					
-					?>
-					<table id="clients" class="display" cellspacing="0" width="100%">
-					<thead>
-						<td>ID</td>
-						<td>Email</td>
-					</thead>
+				?>
+					<form method="post" name="emailform" action="clients.php?Action=Email" novalidate>
+						<table id="clientemail" class="display" cellspacing="0" width="100%">
+							<thead>
+								<td>ID</td>
+								<td>Email</td>
+								<td>Include</td>
+							</thead>
+							<tfoot>
+								<td>ID</td>
+								<td>Email</td>
+								<td>Include</td>
+							</tfoot>
 
-					<tbody>
-						<?php 
-						echo '<p>To: </p>';
-						echo '<form method="post" name="emailform" action="clients.php?Action=Email"';
-						while($row = oci_fetch_array($stmt))
-						{
-							echo '<tr>';
-							echo '<td>'.$row[0].'</td>';
-							echo '<td>'.$row[1].'</td>';
-							echo '<td><input type="checkbox" name="to[]" value="'.$row[1].'"></td>';
-							echo '</tr>';
-						}
-						echo '</tbody></table><br />';			
-						echo '<p>Subject: <input type="text" name="subject"></p>';
-						echo '<p>Message: <textarea cols="68" name="message" rows="9"></textarea></p>';
-						?>
-						<div class="submitButtons">
-							<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
-		            		<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
-		            	</div>
-		            	<?php
-						echo '</form>';
+							<tbody>
+								<?php 
+									while($row = oci_fetch_array($stmt))
+									{
+								?>
+									<tr>
+										<td><?php echo $row[0];?></td>
+										<td><?php echo $row[1];?></td>
+										<td>
+											<?php echo '<input type="checkbox" name="to[]" value="'.$row[1].'"'?>
+										</td>
+									</tr>
+								<?php 
+									}
+								?>
+							</tbody>
+						</table><br>
+
+					<h3>Subject:</h3><input type="text" name="subject"><br>
+					<h3>Message:</h3><textarea cols="68" name="message" rows="9"></textarea><br>
+					<div class="submitButtons">
+						<input class="btn btn-lg btn-primary" type="Submit" Value="Submit">
+	            		<input class="btn btn-lg btn-info"type="Reset" Value="Clear">
+	            	</div>
+    			</form>
+				<?php 
 					} else {
                         $from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
 						$to = implode(',', $_POST['to']);
@@ -495,6 +500,9 @@ include("phputils/helpers.php");
 			$("input").prop('required',true);
 			$(document).ready(function(){
 			    $('#clients').DataTable();
+			});
+			$(document).ready(function(){
+				$('#clientemail').DataTable();
 			});
 			$(function() {
 	    		$( "#tabs" ).tabs();
