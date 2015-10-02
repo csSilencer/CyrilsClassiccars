@@ -189,7 +189,6 @@ include("phputils/helpers.php");
 				<h2>Edit an existing vehicle</h2>
 				<form method="post" enctype="multipart/form-data" action="vehicles.php?Action=EditConfirm">
 					<?php echo "<input style='display: none' name='carid' value='".$_GET["Car_ID"]."'></input>";?>
-					<?php echo "<input style='display: none' name='carreg' value='".$row["CAR_REG"]."'></input>";?>
 		        	<h3>Registration number:</h3><input type="text" name="rego_no" value=<?php echo '"'.$row["CAR_REG"].'"';?> required></br>
 		            <h3>Year:</h3><?php echo '<input type="number" name="year" min="1807" max="'.(date('Y') + 1).'" value="'.$row["CAR_YEAR"].'">'?><br>
 		            <h3>Colour:</h3><input type="text" name="colour" value=<?php echo '"'.$row["CAR_COLOUR"].'"';?> required></br>
@@ -291,7 +290,7 @@ include("phputils/helpers.php");
 		            	<option value="Four wheel drive" <?php echo fSelect("FOUR WHEEL DRIVE", $row["CAR_DRIVETYPE"]);?>>AWD</option>
 		            	<option value="Other" <?php echo fSelect("OTHER", $row["CAR_DRIVETYPE"]);?>>Other</option>
 		            </select></br>
-		            <!-- <h3>Features</h3>
+		            <!-- <h3>Features</h3> Deprecated for now
 		            <a class='addfeaturefield' href="javascript:void(0);" onClick="addFeatureField();">
 		            	<img src="assets/glyphicons_free/glyphicons/png/glyphicons-191-circle-plus.png">
 		            </a>
@@ -330,10 +329,10 @@ include("phputils/helpers.php");
 		    }//end oci exec
 		    	break;
 		    case "EditConfirm":
-		    	$query = "UPDATE CAR SET CAR_REG=:creg CAR_YEAR=:cyear, CAR_DRIVETYPE=:cdrive, CAR_BODYTYPE=:cbody, CAR_COLOUR=:ccolor, CAR_TRANSMISSION=:ctran,"; 
-		    	$query = " CAR_FUELTYPE=:cfuel, CAR_SEATS=:cseat, CAR_DOORS=:cdoor, CAR_ENGINESIZE=:cengin, CAR_CYLINDERS=:ccylin WHERE CAR_ID=".$_POST["carid"];
-		    	$stmt1 = oci_parse($conn, $query);
-		    	foreach(getCarImages($_POST["carreg"]) as $image) {
+		    	$query = "UPDATE CAR SET MAKE_ID=:mkid, MODEL_ID=:moid, CAR_REG=:creg, CAR_ODOMETER=:codom, CAR_YEAR=:cyear, CAR_DRIVETYPE=:cdrive, CAR_BODYTYPE=:cbod, CAR_COLOUR=:ccolor, CAR_TRANSMISSION=:ctran,"; 
+		    	$query = $query . " CAR_FUELTYPE=:cfuel, CAR_SEATS=:cseat, CAR_DOORS=:cdoor, CAR_ENGINESIZE=:cengin, CAR_CYLINDERS=:ccylin WHERE CAR_ID=".$_POST["carid"];
+		    	$stmt = oci_parse($conn, $query);
+		    	foreach(getCarImages($_POST["rego_no"]) as $image) {
 		    		//php replaces name such as img.png with img_png
 		    		//we have to work around this
 		    		$postimg = str_split($image, strlen($image)-4); //subtract standard windows extension length
@@ -341,7 +340,7 @@ include("phputils/helpers.php");
 		    		$postimg = $postimg[0] . '_' . explode(".", $postimg[1], 2)[1];
 		    		// echo $postimg;
 		    		if(isset($_POST[$postimg])) {
-		    			removeImage($_POST["carreg"], $image);
+		    			removeImage($_POST["rego_no"], $image);
 		    		} else {
 		    			//do nothing
 		    		}
@@ -349,16 +348,56 @@ include("phputils/helpers.php");
 				foreach($_FILES as $image) {
 					// specify a directory name for permanent storage
 					// we're going to leave the filename as it was on client machine
-					$upfile = "vehicle_images/".$_POST["carreg"]."/".$image["name"];
-					// this does the work
-					//moved the uploaded file from temporary location to permanent storage
-					//location
-					//if this doesn't work an error message is displayed
-					if(!move_uploaded_file($image["tmp_name"],$upfile)) {
-						header("location: vehicles.php?Action=AddFail");
+					if(isset($image["name"]) & strlen($image["name"]) > 0) {//if image field empty
+						$upfile = "vehicle_images/".$_POST["rego_no"]."/".$image["name"];
+						// this does the work
+						//moved the uploaded file from temporary location to permanent storage
+						//location
+						//if this doesn't work an error message is displayed
+						if(!move_uploaded_file($image["tmp_name"],$upfile)) {
+							header("location: vehicles.php?Action=EditFail");
+						}
+					} else {
+						//do nothing its an empty field
 					}
+					
 				}
+				$mkid = intval(getMakeIDByName($_POST["make_name"], $conn));
+	            $moid = intval(getModelIDByName($_POST["model_name"], $conn));
+	            $creg = strtoupper($_POST["rego_no"]);
+	            $cbod = strtoupper($_POST["body_type"]);
+	            $codom = intval($_POST["odometer"]);
+	            $ctran = strtoupper($_POST["car_transmission"]);
+	            $cyear = intval($_POST["year"]);
+	            $ccolor = strtoupper($_POST["colour"]);
+	            $cdoor = intval($_POST["door_no"]);
+	            $cseat = intval($_POST["seat_no"]);
+	            $ccylin = intval($_POST["cylinder_no"]);
+	            $cengin = intval($_POST["engine_size"]);
+	            $cfuel = strtoupper($_POST["fuel_type"]);
+	            $cdrive = strtoupper($_POST["drive_type"]);
 
+                oci_bind_by_name($stmt, ":mkid", $mkid);
+				oci_bind_by_name($stmt, ":moid", $moid);
+				oci_bind_by_name($stmt, ":creg", $creg);
+				oci_bind_by_name($stmt, ":cbod", $cbod);
+				oci_bind_by_name($stmt, ":ctran", $ctran);	
+				oci_bind_by_name($stmt, ":codom", $codom);
+				oci_bind_by_name($stmt, ":cyear", $cyear);
+				oci_bind_by_name($stmt, ":ccolor", $ccolor);
+				oci_bind_by_name($stmt, ":cdoor", $cdoor);
+				oci_bind_by_name($stmt, ":cseat", $cseat);
+				oci_bind_by_name($stmt, ":ccylin", $ccylin);
+				oci_bind_by_name($stmt, ":cengin", $cengin);
+				oci_bind_by_name($stmt, ":cfuel", $cfuel);
+				oci_bind_by_name($stmt, ":cdrive", $cdrive);
+
+				if(@oci_execute($stmt)) {
+            		echo '<h2>Record Edited successfully</h2></br>';
+            		echo '<input class="btn btn-lg btn-primary" type="button" value="Return to list" onClick=window.location="vehicles.php">';
+				} else {
+					header("location: vehicles.php?Action=EditFail");
+				}
 				break;
 
 		  	case "AddSuccess":
@@ -551,7 +590,7 @@ include("phputils/helpers.php");
 			oci_bind_by_name($stmt, ":cengin", $cengin);
 			oci_bind_by_name($stmt, ":cfuel", $cfuel);
 			oci_bind_by_name($stmt, ":cdrive", $cdrive);
-            if(oci_execute($stmt)) {
+            if(@oci_execute($stmt)) {
             	header("location: vehicles.php?Action=AddSuccess");
             } else {
             	header("location: vehicles.php?Action=AddFail");
