@@ -256,7 +256,7 @@ include("phputils/helpers.php");
 									$this -> Cell(array_sum($w), 0, '', 'T');
 								}
 							}
-							$query = "SELECT * FROM CLIENT";
+							$query = "SELECT * FROM CLIENT ORDER BY CLIENT_ID";
 							$stmt = oci_parse($conn, $query);
 							oci_execute($stmt);
 							$nrows = oci_fetch_all($stmt, $results);
@@ -421,7 +421,7 @@ include("phputils/helpers.php");
 		  </div>
 		  <div id="tabs-3">
 				<?php
-					/*if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
+					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
 						$query= "SELECT CLIENT_ID, CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
 						$stmt = oci_parse($conn, $query);
@@ -483,7 +483,7 @@ include("phputils/helpers.php");
 						}
 					}
 				
-				*/?>
+				?>
 		  </div>
 			
 		</div>
