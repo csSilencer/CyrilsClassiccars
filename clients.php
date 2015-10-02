@@ -435,20 +435,33 @@ function mailingListFn($yn) {
 				<?php
 					if (!isset($_GET['Action']) || $_GET['Action'] != "Email")
 					{
-						echo '<form method="post" name="emailform" action="clients.php?Action=Email"';
-						$query = "SELECT CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
+						$query= "SELECT CLIENT_ID, CLIENT_EMAIL FROM CLIENT WHERE CLIENT_MAILINGLIST='Y'";
 						$stmt = oci_parse($conn, $query);
-						oci_execute($stmt);
-						echo '<p>To: ';
-						echo '<select name="to">';
-						while ($names = oci_fetch_array($stmt))
+						if(!oci_execute($stmt)) 
 						{
-							echo '<option value="'.$names["CLIENT_EMAIL"].'">';
-							echo $names["CLIENT_EMAIL"];
-							echo '</option>';
+							echo "<center style='color: red;'><h1>Failed to connect to the database<h1></center>";
+							echo "<center style='color: red;'><h2>Try refreshing<h2></center>";
+						}					
+					?>
+					<table id="clients" class="display" cellspacing="0" width="100%">
+					<thead>
+						<td>ID</td>
+						<td>Email</td>
+					</thead>
+
+					<tbody>
+						<?php 
+						echo '<p>To: </p>';
+						echo '<form method="post" name="emailform" action="clients.php?Action=Email"';
+						while($row = oci_fetch_array($stmt))
+						{
+							echo '<tr>';
+							echo '<td>'.$row[0].'</td>';
+							echo '<td>'.$row[1].'</td>';
+							echo '<td><input type="checkbox" name="to[]" value="'.$row[1].'"></td>';
+							echo '</tr>';
 						}
-						echo '</select>';
-						echo '</p>';
+						echo '</tbody></table><br />';			
 						echo '<p>Subject: <input type="text" name="subject"></p>';
 						echo '<p>Message: <textarea cols="68" name="message" rows="9"></textarea></p>';
 						?>
@@ -460,7 +473,7 @@ function mailingListFn($yn) {
 						echo '</form>';
 					} else {
                         $from = "From: Cyril's Classic Cars <cyril.crook@monash.edu.au>";
-						$to = $_POST["to"];
+						$to = implode(',', $_POST['to']);
 						$msg = $_POST["message"];
 						$subject = $_POST["subject"];
 						if(mail($to, $subject, $msg, $from)) {
